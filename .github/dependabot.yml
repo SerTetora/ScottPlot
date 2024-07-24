@@ -8,3 +8,4 @@ updates:
     directories: ["src/*"]
     schedule:
       interval: "weekly"
+    open-pull-requests-limit: 10
