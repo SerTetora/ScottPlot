@@ -6,6 +6,7 @@ updates:
       interval: "weekly"
 
   - package-ecosystem: "nuget" 
-    directories: "src/*
+    directories: 
+      - "src/*
     schedule:
       interval: "weekly"
