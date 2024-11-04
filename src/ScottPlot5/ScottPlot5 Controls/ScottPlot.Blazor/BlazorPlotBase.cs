@@ -14,17 +14,22 @@ public abstract class BlazorPlotBase : ComponentBase, IPlotControl
 
     public Plot Plot { get; private set; }
 
+    [Obsolete("Deprecated. Use UserInputProcessor instead. See ScottPlot.NET demo and FAQ for usage details.")]
     public IPlotInteraction Interaction { get; set; }
 
-    public IPlotMenu Menu { get; set; }
+    public IPlotMenu? Menu { get; set; }
     public Interactivity.UserInputProcessor UserInputProcessor { get; }
 
     public BlazorPlotBase()
     {
         Plot = new() { PlotControl = this };
         DisplayScale = DetectDisplayScale();
-        Interaction = new Control.Interaction(this);
-        UserInputProcessor = new(Plot) { IsEnabled = true };
+
+#pragma warning disable CS0618 
+        Interaction = new Control.Interaction(this); // TODO: remove in an upcoming release
+#pragma warning restore CS0618
+
+        UserInputProcessor = new(this) { IsEnabled = true };
         Menu = new BlazorPlotMenu();
     }
 
@@ -45,14 +50,12 @@ public abstract class BlazorPlotBase : ComponentBase, IPlotControl
         Plot oldPlot = Plot;
         Plot = plot;
         oldPlot?.Dispose();
-
         Plot.PlotControl = this;
-        UserInputProcessor.Plot = Plot;
     }
 
     public virtual void Refresh() { }
 
-    public void ShowContextMenu(Pixel position) => Menu.ShowContextMenu(position);
+    public void ShowContextMenu(Pixel position) => Menu?.ShowContextMenu(position);
 
     public void OnPointerMoved(PointerEventArgs e) => UserInputProcessor.ProcessMouseMove(e);
     public void OnPointerPressed(PointerEventArgs e) => UserInputProcessor.ProcessMouseDown(e);

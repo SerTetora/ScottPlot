@@ -1,9 +1,11 @@
-﻿namespace ScottPlot;
+﻿using ScottPlot.Colormaps;
+
+namespace ScottPlot;
 
 public interface IColormap
 {
     /// <summary>
-    /// Full name for this colormap
+    /// Human readable name for this colormap
     /// </summary>
     string Name { get; }
 
@@ -12,17 +14,8 @@ public interface IColormap
     /// Returns transparent if NaN.
     /// Positions outside the range will be clamped.
     /// </summary>
-    /// <param name="position">position from 0 (first color) to 1 (last color)</param>
+    /// <param name="position">Fractional distance along the colormap</param>
     Color GetColor(double position);
-
-    /// <summary>
-    /// Returns the color of a position on this colormap (according to the given range).
-    /// Returns transparent if NaN.
-    /// Positions outside the range will be clamped.
-    /// </summary>
-    /// <param name="position">position relative to the given range</param>
-    /// <param name="range">range of values spanned by this colormap</param>
-    Color GetColor(double position, Range range);
 }
 
 public static class IColormapExtensions
@@ -77,5 +70,44 @@ public static class IColormapExtensions
         return Enumerable.Range(0, count)
             .Select(i => colormap.GetColor(i * fractionStep + minFraction))
             .ToArray();
+    }
+
+    /// <summary>
+    /// Return the color for an item at index <paramref name="index"/> of a collection of size <paramref name="count"/>.
+    /// The <paramref name="startFraction"/> and <paramref name="endFraction"/> may be customized to restrict sampling to a portion of the colormap.
+    /// </summary>
+    public static Color GetColor(this IColormap cmap, int index, int count, double startFraction = 0, double endFraction = 1)
+    {
+        if (count == 1)
+            return cmap.GetColor(.5);
+
+        double fraction = (double)index / (count - 1);
+
+        double fractionRange = endFraction - startFraction;
+        fraction = fraction * fractionRange + startFraction;
+
+        return cmap.GetColor(fraction);
+    }
+
+    public static Color GetColor(this IColormap cmap, double position, Range range)
+    {
+        if (double.IsNaN(position))
+        {
+            return Colors.Transparent;
+        }
+
+        if (range.Min == range.Max)
+        {
+            return cmap.GetColor(0);
+        }
+
+        double normalizedPosition = range.Normalize(position, true);
+
+        return cmap.GetColor(normalizedPosition);
+    }
+
+    public static IColormap Reversed(this IColormap cmap)
+    {
+        return new Reversed(cmap);
     }
 }

@@ -1,5 +1,123 @@
-## ScottPlot 5.0.38
+## ScottPlot 5.0.44
 _Not yet on NuGet..._
+* Rendering: Prevent inversion of data area for extremely small plots (#3607)
+* Generate: Created `AddSin()` and `AddSinInPlace()` methods to facilitate test data generation (#3682)
+
+## ScottPlot 5.0.43
+_Published on [NuGet](https://www.nuget.org/profiles/ScottPlot) on 2024-11-03_
+* UserInputProcessor: Simplified how axis locking is achieved by adding `horizontal` and `vertical` arguments to `LeftClickDragPan()` and `RightClickDragZoom()`
+* Maui: Improved deployment pipeline so the latest `ScottPlot.Maui` package is always available on NuGet (#1391) @KosmosWerner @King-Taz @cosmicDustOfLightLength
+* Candlestick Plot: Exposed `Data` for easier access to underlying `OHLC` candle data (#4385) @quantfreedom
+* Maui: Improved cursor-driven pan and zoom on Desktop platform targets (#4417, #4416) @KosmosWerner @King-Taz
+* Candlestick Plot: Improved visibility of candles with zero price movement (#3337) @Lyakabynka @bukowa
+* Ticks: Added an experimental `FinancialTickGenerator` for generating DateTime ticks from unevenly-spaced time data (#4385)
+* Financial Charting: Added experimental `FinancialTimeAxis` plottable as an alternative to using custom axes or tick generators (#4385) @quantfreedom @vladislavpweetsoft
+* Triangular Axis: Users may now `Add.TriangularAxis()` and use its methods to get Cartesian coordinates from points in triangular space (#4421, #4413, #4424) @manaruto
+* Bar: Exposed `Rect`, `ErrorLines`, and `AxisLimits` properties (#4423) @tiger2014
+* Axes: `SquareUnits()` now uses `SquareZoomOut` for console apps and `SquarePreserveX` for interactive apps (#4422) @King-Taz @KosmosWerner
+* Bar: Improved support for bat plots with custom hatch patterns (#3386)
+* Floating Axis: New plot type for displaying axes anywhere inside the data area (#3377) @ZTaiIT1025
+* Bar: Improved behavior of horizontal bar plots with the `CenterLabel` flag enabled (#3533) @TheFizz
+* Generate: added `Sigmoidal()` method for creating sample data with a sigmoidal shape
+
+## ScottPlot 5.0.42
+_Published on [NuGet](https://www.nuget.org/profiles/ScottPlot) on 2024-10-29_
+* Controls: Refactor to allow the user input processor to function as `IPlotControl.Reset()` changes the underlying `Plot` (#4404) @Or8e4m4n
+
+## ScottPlot 5.0.41
+_Published on [NuGet](https://www.nuget.org/profiles/ScottPlot) on 2024-10-27_
+* Controls: marked `Interaction` as `Obsolete` to encourage use of the newer `UserInputProcessor` documented in all the demo apps. Users may still activate the old system by calling `myPlotControl.Interaction.Enable()` (#4322, #4224, #3186, #4053)
+* Ticks: Improved automatic tick generation for axes of extremely small plots (#4353, #4354) @StendProg @Cassar17
+* CoordinateRange: Added a `Center` property to return the value halfway between the range boundary values (#4316, #4357) @idotta
+* Multiplot: Improve support for advanced layouts and add examples to cookbook (#4345)
+* Colormap: Added `Default` property to provide quick access to a customizable standard colormap (defaults to `MellowRainbow`)
+* Palette: Added `Default` property to provide quick access to a customizable standard Palette (defaults to `Category10`)
+* Bar: Use `LineStyle` and `FillStyle` similar to other plottables and deprecate old property names
+* Histogram: Refactored to simplify creation of creating probability curves and cumulative probability histograms (#4287, #4367)
+* Colormap: Refactor all `ScottPlot.Colormaps` to favor composition over inheritance and add extension methods to `IColormap` (#4248)
+* WinUI: Improve support for .NET 8 platform targets (#4288, #4374) @vilgotf
+* Scatter: Made all default strategies `public` to facilitate connecting line customization (#4346)
+* Interaction: Added `DoubleLeftClickBenchmark()`, `LeftClickDragPan()`, and `RightClickDragZoom()` helper methods for toggling default behavior (#4379)
+* Finance: Added `Add.BackgroundText()` methods to simplify the process of adding stock symbol information (#4396, #4395, #4385) @quantfreedom
+* Finance: Improve support for `List<OHLC>` and `OHLC[]` data types (#4397)
+* Generate: Added `Generate.Financial.OHLCsByMinute()` to simplify creation of random financial data (#4397)
+* DataLogger: Add `Clear()` to the data logging plottable ands its corresponding data source (#4377) @h135558
+* Cookbook: Improved recipes, reorganized chapters, and added platform switching to the website (#4392)
+
+## ScottPlot 5.0.40
+_Published on [NuGet](https://www.nuget.org/profiles/ScottPlot) on 2024-10-16_
+* DataLogger: Added `Add()` overloads to be consistent the original DataLogger API (#4243, #4114) @drolevar @jpgarza93
+* Fonts: Improve typeface caching to significantly improve Avalonia performance on Linux (#3439, #4250) @kebox7
+* Generate: Improved `RandomNumbers()` to include lower boundary as described in XML docs (#4251, #4252) @aespitia @LeaFrock @ArchieCoder
+* LinePattern: Added `Name` property and added support for custom patterns (#4275, #4289) @CoderPM2011
+* DataSources: Created `IDataSource` to standardize and simplify data access, render index management, and pixel/coordinate conversion (#3807, #4270) @RFBomb @StendProg
+* LinePlot: Added `CoordinateLine` property (#4277, #4274) @aespitia
+* Pie: Improved respect for `LineStyle` customizations (#7278)
+* Pie: Improved automatic axis limit behavior for pie charts with internal slice labels (#7278)
+* Pie: Slices now have distinct `Label` and `LegendText` properties (#3295, #4280) @LeaFrock @sterenas @Martin12350
+* SignalXY: Fixed bug introduced in the last version that caused off-screen data to throw an ascending value exception (#4261, #4286) @RFBomb @StendProg
+* Controls: Added strong naming by signing assemblies for the WPF, Maui, and Eto controls (#4295) @RFBomb
+* OpenGL: Improve behavior of plots when grid lines are rendered beneath plottables (#4298) @StendProg
+* OpenGL: Improve support for OpenGL controls on modern .NET using platform-specific OpenTK versions (#4301) @StendProg
+* Coxcomb: Improved first slice orientation consistency (#4304, #4305) @johndoh
+* Grid: Improved alternating fill grid appearance for live and interactive graphs (#4302, #4307) @StendProg @bradcb212
+* SignalXY: Fixed bug causing plots with inverted horizontal axes to crash under specific conditions (#4313, #4315) @StendProg @lguelat
+* CoordinateRange: Refactored to improve support for inverted ranges (#4316) @CoderPM2011
+* Axes: Added a `Plot.Axes.TightMargins()` shortcut for setting autoscale margins to tightly fit the data
+* ContourLines: New plot type for displaying lines that mark points of equal elevation given a collection of 3D points (#4296, #2330, #3795, #4326) @jon-rizzo @StendProg
+* Maui: Improved the .NET MAUI ScottPlot control and added quickstart documentation to the website (#4320, #4023, #4013, #4342) @KosmosWerner @ByteSore
+* Radar: Improved rotational direction of labels (#4321, #4310) @CoderPM2011 @bry-decelles
+* Axes: Added `Plot.Axes.MarginsX()` and `Plot.Axes.MarginsY()` for changing margins in a single axis without changing the other (#4246)
+* Colormap: Added `Colormap.FromColors()` to generate colormaps using interpolated gradients between a user defined collection of colors (#4247, #4324)
+* Colormap: added `MellowRainbow` similar to Jet and Turbo but with mellow tones to improve appearance of thin lines on a white background (#4325)
+* ScaleBar: New plot type for communicating scale as a concise alternative to the axis frame (#4319, #4337, #4329) @CoderPM2011
+* PixelLine: Added `Center` property (#4335, #4318) @brokoli777
+* MultiPlot: New class for creating composite figures containing multiple distinct `Plot` figures (#3948)
+* Plot: Deprecated `GetImageHtml()` in favor of `GetPngHtml()` and `GetSvgHtml()` (#4347)
+
+## ScottPlot 5.0.39
+_Published on [NuGet](https://www.nuget.org/profiles/ScottPlot) on 2024-08-02_
+* Angle: Added support for common arithmetic operators
+* PolarCoordinates: Added `FromCartesian()` and `FromCartesian()` overloads to facilitate conversion between polar and Cartesian space (#4211) @CoderPM2011
+* Pie: Added `Rotation` property (#4211) @CoderPM2011
+* Pie: Improved label alignment (#4211) @CoderPM2011
+* Pie: First slice now starts vertically (-90 degrees) instead of to the right (0 degrees) (#4211) @CoderPM2011
+* Generate: Random seed uses `System.Random.Shared` on .NET platforms where it is available (#4217) @LeaFrock
+* Axes: Added `ClipLabel` option to prevent long labels from overlapping on very small plots (#4219) @drolevar
+* Plot: Improved performance when adding new plot objects by reducing complexity of color palette sampling (#4218) @0xfded @StendProg
+* Colormap: Added `GetColor()` overload to get color of an item in a collection with an option to sample from a range of the colormap
+* Markers: Added optional `Colormap` so marker colors can be sampled from a colormap instead of assigned manually (#4143)
+* Angle: Added `FromFraction()` to produce angles represented by a fraction around the unit circle (#4208)
+* Color: Added constructor overloads to create colors from `SKColor` and `System.Drawing.Color` (#4209)
+* Axes: Added `SetSpanX()` and `SetSpanY()` for defining axis range size without changing the center position (#4221)
+
+## ScottPlot 5.0.38
+_Published on [NuGet](https://www.nuget.org/profiles/ScottPlot) on 2024-09-02_
+* DataLogger: Merged in numerous additional features (optional circular buffer, X and Y offset, etc.) from the experimental DataLogger (#4085, #4114) @drolevar
+* SVG: Improved correctness of exported SVG files to overcome a SkiaSharp bug that sometimes results in XML missing a closing tag (#4104, #4121) @KroMignon @aespitia @bclehmann @DDiggs91 
+* Generate: Added `Range()` to create a sequence of values between two numbers (#4122, #4119, #4179) @KroMignon @StendProg
+* Rendering: Improve behavior of plots using custom scale factors in situations of repeated renders (#4125) @BrianAtZetica
+* Palette: Improved behavior of automatic color selection for new plottables added to the plot (#4105)
+* Color: Added overload to allow constructing colors from hex strings (#4170, #4165) @aespitia @KroMignon @kebox7
+* WinUI: Improved support and documentation for applications built using Uno Platform (#4123) @agneszitte
+* Color: Added Hue, Saturation, and Luminance properties
+* Colormap: Added `Colormap.GetColormaps()` to allow iterating over all available colormaps
+* Colormap: Added `Colormap.GetImage()` to generate a gradient image using a given colormap
+* Coordinates: Added `Position` and `Coordinates` properties (#4185) @blouflashdb
+* Signal: Added `AlwaysUseLowDensityMode` for improved anti-aliased rendering in static plots (#4153)
+* Plot: Improved default `ToString()` implementation for the object returned when saving image files (#4154)
+* Plot: Added `Save()` overload which detects file format from filename extension (#4164)
+* Coordinates: Added `Coordinates.Zip()` for creating a `Coordinates[]` from distinct `xs[]` and `ys[]` arrays.
+* Lollipop: New plot type that displays values with a stem and a marker similar to a bar graph but with less visual clutter (#4193, #4183) @CoderPM2011
+* Polar Axis: Added `Rotation` property to rotate the axis and coordinates it returns
+* Polar Axis: Added the ability to customize spoke label text (#4188)
+* Polar Axis: Added a `SetSpokes()` overload that accepts `string[]` to create new spokes and set their label text automatically
+* Polar Axis: Replaced `RegenerateSpokes()` and `RegenerateCircles()` with `SetSpokes()` and `SetCircles()` (#4207)
+* Grid: Added support for fill colors to highlight spans between pairs of major grid lines (#4201, #4022) @CoderPM2011 @seeingistrue
+* AxisSpan: Added `IsUnderMouse()` to improve API naming consistency with AxisLine (#4150)
+* AxisLimits: Added `Contains()` to allow quick checking whether a point is contained by the boundaries of the axis limits (#4161)
+* Radar: Refactored to use a `PolarAxis` to handle spoke and tick management and translation between polar and Cartesian space (#4207, #4187, #4186, #4055)
+* Controls: Made `IPlotControl.Menu` nullable so users creating their own controls are not required to create a menu system (#4203) @kebox7
 
 ## ScottPlot 5.0.37
 _Published on [NuGet](https://www.nuget.org/profiles/ScottPlot) on 2024-07-29_

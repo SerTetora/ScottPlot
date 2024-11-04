@@ -10,10 +10,11 @@
 
         <!-- NuGet info -->
         <PackageId>ScottPlot.Avalonia</PackageId>
-        <Version>5.0.37</Version>
+        <Version>5.0.43</Version>
         <Authors>Scott Harden</Authors>
         <Company>Harden Technologies, LLC</Company>
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
+        <Copyright>Copyright (c) Scott Harden / Harden Technologies, LLC</Copyright>
         <PackageTags>plot graph data chart signal line bar heatmap scatter</PackageTags>
         <description>User controls for displaying interactive plots in Avalonia applications</description>
         <PackageIcon>icon.png</PackageIcon>
@@ -45,7 +46,7 @@
 
     <!-- Package dependencies -->
     <ItemGroup>
-        <PackageReference Include="Microsoft.SourceLink.GitHub" Version="*">
+        <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>

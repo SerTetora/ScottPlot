@@ -18,9 +18,9 @@ public class MockPlotControl : IPlotControl
     public GRContext? GRContext => null;
 
     public IPlotInteraction Interaction { get; set; }
-    public Interactivity.UserInputProcessor UserInputProcessor { get; }
+    public UserInputProcessor UserInputProcessor { get; }
 
-    public IPlotMenu Menu // TODO: mock menu
+    public IPlotMenu? Menu // TODO: mock menu
     {
         get => throw new NotImplementedException();
         set => throw new NotImplementedException();
@@ -29,8 +29,12 @@ public class MockPlotControl : IPlotControl
     public MockPlotControl()
     {
         Plot = new() { PlotControl = this };
-        Interaction = new Control.Interaction(this);
-        UserInputProcessor = new(Plot) { IsEnabled = true };
+
+#pragma warning disable CS0618 
+        Interaction = new Control.Interaction(this); // TODO: remove in an upcoming release
+#pragma warning restore CS0618
+
+        UserInputProcessor = new(this) { IsEnabled = true };
 
         // force a render on startup so we can immediately use pixel drag actions
         Refresh();

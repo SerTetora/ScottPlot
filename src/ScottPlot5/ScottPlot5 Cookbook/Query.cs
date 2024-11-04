@@ -1,10 +1,13 @@
-﻿namespace ScottPlotCookbook;
+﻿using ScottPlotCookbook.Recipes.Miscellaneous;
+using System.Reflection;
+
+namespace ScottPlotCookbook;
 
 public static class Query
 {
     public static readonly Dictionary<ICategory, IEnumerable<IRecipe>> RecipesByCategory = GetRecipesByCategory();
 
-    public readonly record struct RecipeInfo(string Chapter, ICategory Category, IRecipe Recipe);
+    public readonly record struct RecipeInfo(Chapter Chapter, ICategory Category, IRecipe Recipe);
 
     public static List<RecipeInfo> GetRecipes()
     {
@@ -25,17 +28,13 @@ public static class Query
         return list;
     }
 
-    public static string[] GetChapterNamesInOrder()
+    public static Chapter[] GetChaptersInOrder()
     {
-        return new string[]
-        {
-            "Introduction",
-            "Axis",
-            "Layout",
-            "Plot Types",
-            "Statistics",
-            "Miscellaneous"
-        };
+        return
+        [
+            Chapter.General,
+            Chapter.PlotTypes,
+        ];
     }
 
     public static IEnumerable<ICategory> GetCategories()
@@ -49,10 +48,10 @@ public static class Query
             .Cast<ICategory>()
             .ToList();
 
-        foreach (string name in GetChapterNamesInOrder().Reverse())
+        foreach (Chapter chapter in GetChaptersInOrder().Reverse())
         {
             ICategory? match = categories
-                .Where(x => string.Equals(x.Chapter, name, StringComparison.InvariantCultureIgnoreCase))
+                .Where(category => category.Chapter == chapter)
                 .First();
 
             categories.Remove(match);
@@ -77,5 +76,15 @@ public static class Query
         }
 
         return recipesByCategory;
+    }
+
+    public static Dictionary<string, string> GetMultiplotDescriptions()
+    {
+        return typeof(MultiplotRecipes)
+            .GetNestedTypes()
+            .Where(type => type.IsSubclassOf(typeof(MultiplotRecipeBase)))
+            .Select(type => Activator.CreateInstance(type))
+            .Cast<MultiplotRecipeBase>()
+            .ToDictionary(x => x.Name, x => x.Description);
     }
 }

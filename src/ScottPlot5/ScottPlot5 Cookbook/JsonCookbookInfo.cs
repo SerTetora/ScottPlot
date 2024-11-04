@@ -1,12 +1,7 @@
-﻿using ScottPlotCookbook.Recipes;
-using System.Text.Json;
+﻿using System.Text.Json;
 
 namespace ScottPlotCookbook;
 
-/// <summary>
-/// This object uses reflection to get recipes and pairs them 
-/// with metadata and source code from a JSON file
-/// </summary>
 public class JsonCookbookInfo
 {
     public record struct JsonCategoryInfo(
@@ -24,7 +19,10 @@ public class JsonCookbookInfo
         string SourceUrl,
         string AnchorUrl,
         string RecipeUrl,
-        string ImageUrl);
+        string ImageUrl)
+    {
+        public readonly string CategoryUrl => AnchorUrl.Split("#")[0];
+    }
 
     public readonly string Version;
     public readonly string[] Chapters;

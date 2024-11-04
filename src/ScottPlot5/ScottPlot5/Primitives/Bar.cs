@@ -3,22 +3,38 @@
 /// <summary>
 /// Represents a single bar in a bar chart
 /// </summary>
-public class Bar
+public class Bar : IHasFill, IHasLine
 {
     public double Position { get; set; }
-    public double Value;
-    public double ValueBase { get; set; } = 0;
+    public double Value { get; set; }
+    public double ValueBase { get; set; }
+    public double Size { get; set; } = 0.8; // coordinate units
+
+    /// <summary>
+    /// Size of the error bar extending from <see cref="Value"/>
+    /// </summary>
     public double Error { get; set; } = 0;
 
-    public bool IsVisible { get; set; } = true;
-    public Color FillColor { get; set; } = Colors.Gray;
-    public Color BorderColor { get; set; } = Colors.Black;
-    public Color ErrorColor { get; set; } = Colors.Black;
-
-    public double Size { get; set; } = 0.8; // coordinate units
+    /// <summary>
+    /// Width of the error bar whiskers in axis units (same units as <see cref="Position"/>)
+    /// </summary>
     public double ErrorSize { get; set; } = 0.2; // coordinate units
-    public float BorderLineWidth { get; set; } = 1;
-    public float ErrorLineWidth { get; set; } = 0;
+
+    public bool IsVisible { get; set; } = true;
+
+    public FillStyle FillStyle { get; set; } = new() { Color = Colors.Gray, IsVisible = true };
+    public Color FillHatchColor { get => FillStyle.HatchColor; set => FillStyle.HatchColor = value; }
+    public IHatch? FillHatch { get => FillStyle.Hatch; set => FillStyle.Hatch = value; }
+    public Color FillColor { get => FillStyle.Color; set => FillStyle.Color = value; }
+
+    public LineStyle LineStyle { get; set; } = new() { Color = Colors.Black, Width = 1, IsVisible = true };
+    public float LineWidth { get => LineStyle.Width; set => LineStyle.Width = value; }
+    public LinePattern LinePattern { get => LineStyle.Pattern; set => LineStyle.Pattern = value; }
+    public Color LineColor { get => LineStyle.Color; set => LineStyle.Color = value; }
+
+    [Obsolete("use LineColor", true)] public Color BorderColor { get; set; }
+    [Obsolete("use LineWidth", true)] public float BorderLineWidth { get; set; } = 1;
+    [Obsolete("use LineWidth", true)] public float ErrorLineWidth { get; set; } = 0;
 
     // TODO: something like ErrorInDirectionOfValue?
     // Maybe ErrorPosition should be an enum containing: None, Upward, Downward, Both, or Extend
@@ -31,7 +47,7 @@ public class Bar
 
     public Orientation Orientation { get; set; } = Orientation.Vertical;
 
-    internal CoordinateRect Rect
+    public CoordinateRect Rect
     {
         get
         {
@@ -49,7 +65,7 @@ public class Bar
         }
     }
 
-    internal IEnumerable<CoordinateLine> ErrorLines
+    public IEnumerable<CoordinateLine> ErrorLines
     {
         get
         {
@@ -71,7 +87,7 @@ public class Bar
         }
     }
 
-    internal AxisLimits AxisLimits
+    public AxisLimits AxisLimits
     {
         get
         {
@@ -95,8 +111,8 @@ public class Bar
             return;
 
         PixelRect rect = axes.GetPixelRect(Rect);
-        Drawing.FillRectangle(rp.Canvas, rect, FillColor);
-        Drawing.DrawRectangle(rp.Canvas, rect, BorderColor, BorderLineWidth);
+        Drawing.FillRectangle(rp.Canvas, rect, paint, FillStyle);
+        Drawing.DrawRectangle(rp.Canvas, rect, paint, LineStyle);
 
         if (Error != 0)
         {
@@ -104,21 +120,30 @@ public class Bar
             {
                 Pixel pt1 = axes.GetPixel(line.Start);
                 Pixel pt2 = axes.GetPixel(line.End);
-                Drawing.DrawLine(rp.Canvas, paint, pt1, pt2, BorderColor, BorderLineWidth);
+                PixelLine pxLine = new(pt1, pt2);
+                Drawing.DrawLine(rp.Canvas, paint, pxLine, LineStyle);
             }
+        }
+
+        if (CenterLabel)
+        {
+            labelStyle.Alignment = Alignment.MiddleCenter;
+            labelStyle.Render(rp.Canvas, rect.Center, paint);
+            return;
         }
 
         if (Orientation == Orientation.Vertical)
         {
             float xPx = rect.HorizontalCenter;
-            float yPx = CenterLabel ? rect.VerticalCenter : rect.Top;
-            labelStyle.Alignment = CenterLabel ? Alignment.MiddleCenter : Alignment.LowerCenter;
+            float yPx = rect.Top;
+            labelStyle.Alignment = Alignment.LowerCenter;
             Pixel labelPixel = new(xPx, yPx - LabelOffset);
             labelStyle.Render(rp.Canvas, labelPixel, paint);
         }
         else
         {
             MeasuredText measured = labelStyle.Measure(labelStyle.Text, paint);
+
             if (Value < 0)
             {
                 float xPx = rect.LeftCenter.X - (LabelOffset + measured.Width / 2);

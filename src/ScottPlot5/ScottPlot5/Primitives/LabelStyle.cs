@@ -74,6 +74,8 @@ public class LabelStyle
     public float BorderRadiusX = 0;
     public float BorderRadiusY = 0;
 
+    public static LabelStyle Default => new() { IsVisible = true, ForeColor = Colors.Black };
+
     /// <summary>
     /// Use the characters in <see cref="Text"/> to determine an installed
     /// system font most likely to support this character set.
@@ -217,12 +219,22 @@ public class LabelStyle
         return new Pixel(x, y);
     }
 
+    public void Render(SKCanvas canvas, Pixel px, SKPaint paint, string text, bool bottom = true)
+    {
+        Text = text;
+        Render(canvas, px, paint, bottom);
+    }
+
     // TODO: deprecate this and require a string to be passed in
     public void Render(SKCanvas canvas, Pixel px, SKPaint paint, bool bottom = true)
     {
         if (!IsVisible)
             return;
 
+        if (string.IsNullOrEmpty(Text))
+            return;
+
+        ApplyToPaint(paint);
         MeasuredText measured = Measure(Text, paint);
         PixelRect textRect = measured.Rect(Alignment);
 
@@ -252,6 +264,9 @@ public class LabelStyle
 
     private void DrawText(SKCanvas canvas, MeasuredText measured, SKPaint paint, PixelRect textRect, bool bottom)
     {
+        if (Text is null)
+            return;
+
         ApplyTextPaint(paint);
 
         float dY = bottom ? -measured.Bottom : measured.VerticalOffset;

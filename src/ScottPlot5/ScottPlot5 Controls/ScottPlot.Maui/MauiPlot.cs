@@ -1,112 +1,69 @@
-﻿using ScottPlot.Control;
-using SkiaSharp;
-using SkiaSharp.Views.Maui;
+﻿using SkiaSharp.Views.Maui;
 using SkiaSharp.Views.Maui.Controls;
 
 namespace ScottPlot.Maui;
 
-public partial class MauiPlot : ContentPage, IPlotControl
+#pragma warning disable CS0618 // disable obsolete warnings
+
+public class MauiPlot : SKCanvasView, IPlotControl
 {
-    private readonly SKCanvasView _canvas = CreateRenderTarget();
-
     public Plot Plot { get; internal set; } = new();
-
-    private ContentPage? XamlRoot = null;
-
     public SkiaSharp.GRContext? GRContext => null;
 
+    [Obsolete("Deprecated. Use UserInputProcessor instead. See ScottPlot.NET demo and FAQ for usage details.")]
     public IPlotInteraction Interaction { get; set; }
-    public IPlotMenu Menu { get; set; }
+    public IPlotMenu? Menu { get; set; }
     public Interactivity.UserInputProcessor UserInputProcessor { get; }
-
     public float DisplayScale { get; set; } = 1;
-
-    SKPaint skPaint = new SKPaint()
-    {
-        Style = SKPaintStyle.Stroke,
-        Color = SKColors.DeepPink,
-        StrokeWidth = 10,
-        IsAntialias = true,
-    };
-
+    internal Pixel LastPixel { get; set; }
+    internal Pixel LastScalePixel { get; set; }
     public MauiPlot()
     {
-        Interaction = new Interaction(this);
-        UserInputProcessor = new(Plot);
+        Plot = new Plot() { PlotControl = this };
+        DisplayScale = DetectDisplayScale();
+        Interaction = new Control.Interaction(this); // TODO: remove in an upcoming release
+        UserInputProcessor = new(this) { IsEnabled = true };
         Menu = new MauiPlotMenu(this);
-        PointerGestureRecognizer pointerGestureRecognizer = new PointerGestureRecognizer();
-        TapGestureRecognizer tapGestureRecognizer = new TapGestureRecognizer();
 
-        Background = new SolidColorBrush(Microsoft.Maui.Graphics.Colors.Gray);
+        IgnorePixelScaling = true;
 
-        _canvas.PaintSurface += (s, e) =>
+        if (DeviceInfo.Idiom == DeviceIdiom.Desktop)
         {
-            var surface = e.Surface;
-            var canvas = surface.Canvas;
-
-            SKRect skRectangle = new SKRect();
-            skRectangle.Size = new SKSize(100, 100);
-            skRectangle.Location = new SKPoint(-100f / 2, -100f / 2);
-
-            canvas.DrawRect(skRectangle, skPaint);
-        };
-
-        pointerGestureRecognizer.PointerMoved += (s, e) =>
+            Touch += MauiPlot_Touch;
+            EnableTouchEvents = true;
+        }
+        else
         {
-            Pixel ePixel = GetMousePos(e);
-            Interaction.OnMouseMove(ePixel);
-        };
+            EnableTouchEvents = false;
+            var panGestureRecognizer = new PanGestureRecognizer();
+            var pinchGestureRecognizer = new PinchGestureRecognizer();
 
-        pointerGestureRecognizer.PointerPressed += (s, e) =>
-        {
-            Pixel ePixel = GetMousePos(e);
-            Interaction.MouseDown(ePixel, MouseButton.Left);
-        };
+            panGestureRecognizer.PanUpdated += (s, e) => UserInputProcessor.ProcessPanUpdated(this, e);
+            pinchGestureRecognizer.PinchUpdated += (s, e) => UserInputProcessor.ProcessPinchUpdated(this, e, (float)Width, (float)Height);
 
-        pointerGestureRecognizer.PointerReleased += (s, e) =>
-        {
-            Pixel ePixel = GetMousePos(e);
-            Interaction.MouseUp(ePixel, MouseButton.Left);
-        };
-
-        tapGestureRecognizer.Tapped += (s, e) =>
-        {
-            if (e.Buttons == ButtonsMask.Secondary)
-            {
-                // Do something
-                Pixel ePixel = GetMousePos(e);
-            }
-        };
-
-        _canvas.GestureRecognizers.Add(pointerGestureRecognizer);
-        _canvas.GestureRecognizers.Add(tapGestureRecognizer);
-
-        /*this.Content = _canvas;*/
+            GestureRecognizers.Add(pinchGestureRecognizer);
+            GestureRecognizers.Add(panGestureRecognizer);
+        }
     }
 
-    private Pixel GetMousePos(TappedEventArgs e)
+    private void MauiPlot_Touch(object? sender, SKTouchEventArgs e)
     {
-        Point? position = e.GetPosition(null);
-        if (position is null)
-            return Pixel.NaN;
-        Point tmpPos = new Point(position.Value.X, position.Value.X);
-        return tmpPos.ToPixel();
-    }
-    private Pixel GetMousePos(PointerEventArgs e)
-    {
-        Point? position = e.GetPosition(null);
-        if (position is null)
-            return Pixel.NaN;
-        Point tmpPos = new Point(position.Value.X, position.Value.X);
-        return tmpPos.ToPixel();
-    }
-
-    private static SKCanvasView CreateRenderTarget()
-    {
-        return new SKCanvasView
+        switch (e.ActionType)
         {
-            Background = new SolidColorBrush(Microsoft.Maui.Graphics.Colors.Transparent)
-        };
+            case SKTouchAction.Pressed:
+                UserInputProcessor.ProcessMouseDown(this, e);
+                break;
+            case SKTouchAction.Moved:
+                UserInputProcessor.ProcessMouseMove(this, e);
+                break;
+            case SKTouchAction.Released:
+                UserInputProcessor.ProcessMouseUp(this, e);
+                break;
+            case SKTouchAction.WheelChanged:
+                UserInputProcessor.ProcessWheelChanged(this, e);
+                break;
+            default: break;
+        }
     }
 
     public void Reset()
@@ -121,25 +78,28 @@ public partial class MauiPlot : ContentPage, IPlotControl
 
     public void Refresh()
     {
-        _canvas.InvalidateSurface();
+        InvalidateSurface();
     }
 
     public void ShowContextMenu(Pixel position)
     {
-        Menu.ShowContextMenu(position);
+        Menu?.ShowContextMenu(position);
     }
 
-    private void OnPaintSurface(object? sender, SKPaintSurfaceEventArgs e)
+    protected override void OnPaintSurface(SKPaintSurfaceEventArgs e)
     {
-        Plot.Render(e.Surface.Canvas, (int)e.Surface.Canvas.LocalClipBounds.Width, (int)e.Surface.Canvas.LocalClipBounds.Height);
+        base.OnPaintSurface(e);
+
+        e.Surface.Canvas.Clear();
+        Plot.Render(e.Surface.Canvas, e.Info.Width, e.Info.Height);
     }
 
     public float DetectDisplayScale()
     {
-        if (XamlRoot is not null)
+        if (Parent is VisualElement parent)
         {
-            Plot.ScaleFactor = XamlRoot.Scale;
-            DisplayScale = (float)XamlRoot.Scale;
+            Plot.ScaleFactor = parent.Scale;
+            DisplayScale = (float)parent.Scale;
         }
 
         return DisplayScale;

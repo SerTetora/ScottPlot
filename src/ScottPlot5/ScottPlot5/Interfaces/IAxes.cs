@@ -29,3 +29,31 @@ public interface IAxes
     double GetCoordinateX(float pixel);
     double GetCoordinateY(float pixel);
 }
+
+public static class IAxesExtensions
+{
+    public static void SetSpanX(this IAxes axes, double span)
+    {
+        double xMin = axes.XAxis.Range.Center - span / 2;
+        double xMax = axes.XAxis.Range.Center + span / 2;
+        axes.XAxis.Range.Set(xMin, xMax);
+    }
+
+    public static void SetSpanY(this IAxes axes, double span)
+    {
+        double yMin = axes.YAxis.Range.Center - span / 2;
+        double yMax = axes.YAxis.Range.Center + span / 2;
+        axes.YAxis.Range.Set(yMin, yMax);
+    }
+
+    public static PixelPath GetPixelPath(this IAxes axis, CoordinatePath path)
+    {
+        Pixel[] pixels = path.Points.Select(axis.GetPixel).ToArray();
+        return path.Close ? PixelPath.Closed(pixels) : PixelPath.Open(pixels);
+    }
+
+    public static PixelPath[] GetPixelPaths(this IAxes axis, CoordinatePath[] paths)
+    {
+        return paths.Select(axis.GetPixelPath).ToArray();
+    }
+}

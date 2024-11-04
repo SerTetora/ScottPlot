@@ -1,4 +1,6 @@
-﻿namespace ScottPlot;
+﻿using ScottPlot.DataGenerators;
+
+namespace ScottPlot;
 
 #nullable enable
 
@@ -8,6 +10,7 @@
 public static class Generate
 {
     public static RandomDataGenerator RandomData { get; } = new(0);
+    public static FinancialDataGenerator Financial { get; } = new(0);
 
     #region numerical 1D
 
@@ -33,6 +36,22 @@ public static class Generate
         double[] ys = new double[count];
         for (int i = 0; i < ys.Length; i++)
             ys[i] = Math.Sin(i * sinScale + phase * Math.PI * 2) * mult + offset;
+        return ys;
+    }
+
+    /// <summary>
+    /// Return an array for a sigmoidal curve that rises from zero to <paramref name="mult"/>
+    /// </summary>
+    public static double[] Sigmoidal(int count, double mult = 1.0, double steepness = 1.0)
+    {
+        double[] ys = new double[count];
+
+        for (int i = 0; i < count; i++)
+        {
+            double x = (double)i / count * 10 - 5;
+            ys[i] = 1 / (1 + Math.Exp(-x * steepness));
+        }
+
         return ys;
     }
 
@@ -109,6 +128,26 @@ public static class Generate
         return values;
     }
 
+    /// <summary>
+    /// Generate a square wave by summing sine waves with decreasing amplitudes at odd harmonics of the fundamental frequency
+    /// </summary>
+    public static double[] SquareWaveFromSines(int pointCount = 1000, double oscillations = 2, int sineCount = 5)
+    {
+        double[] values = new double[pointCount];
+        double dX = Math.PI * 2 * oscillations / (pointCount - 1);
+
+        for (int j = 0; j < sineCount; j++)
+        {
+            int harmonic = (j * 2) + 1;
+            for (int i = 0; i < pointCount; i++)
+            {
+                values[i] += Math.Sin(i * dX * harmonic) / harmonic;
+            }
+        }
+
+        return values;
+    }
+
     public static double[] Zeros(int count)
     {
         return Repeating(count, 0);
@@ -134,6 +173,23 @@ public static class Generate
     public static double[] NaN(int count)
     {
         return Repeating(count, double.NaN);
+    }
+
+    /// <summary>
+    /// Return <paramref name="n"/> values evenly spaced between <paramref name="start"/> to <paramref name="stop"/> (inclusive)
+    /// </summary>
+    private static IEnumerable<double> Range(double start, double stop, int n)
+    {
+        return Enumerable.Range(0, n).Select(i => (stop - start) * i / (n - 1) + start);
+    }
+
+    /// <summary>
+    /// Return values from <paramref name="start"/> to <paramref name="stop"/> (inclusive) separated by <paramref name="step"/>
+    /// </summary>
+    public static double[] Range(double start, double stop, double step = 1)
+    {
+        int n = (int)Math.Round((stop - start) / step) + 1;
+        return Range(start, stop, n).ToArray();
     }
 
     #endregion
@@ -371,7 +427,7 @@ public static class Generate
     /// </summary>
     public static double[] RandomNumbers(int count, double max)
     {
-        return RandomData.RandomSample(count, 0, max);
+        return Generate.RandomSample(count, 0, max);
     }
 
     /// <summary>
@@ -379,7 +435,7 @@ public static class Generate
     /// </summary>
     public static double[] RandomNumbers(int count, double min, double max)
     {
-        return RandomData.RandomSample(count, min, max);
+        return Generate.RandomSample(count, min, max);
     }
 
     /// <summary>
@@ -396,6 +452,28 @@ public static class Generate
     public static void AddNoiseInPlace(double[] values, double magnitude = 1)
     {
         RandomData.AddNoiseInPlace(values, magnitude);
+    }
+
+    /// <summary>
+    /// Modify the array to add a sine wave with the given parameters
+    /// </summary>
+    public static double[] AddSinInPlace(double[] values, double mult = 1, double offset = 0, double oscillations = 1, double phase = 0)
+    {
+        double sinScale = 2 * Math.PI * oscillations / (values.Length - 1);
+        for (int i = 0; i < values.Length; i++)
+            values[i] += Math.Sin(i * sinScale + phase * Math.PI * 2) * mult + offset;
+        return values;
+    }
+
+    /// <summary>
+    /// Return a new array containing the given one plus a sine wave with the given parameters
+    /// </summary>
+    public static double[] AddSin(double[] values, double mult = 1, double offset = 0, double oscillations = 1, double phase = 0)
+    {
+        double[] values2 = new double[values.Length];
+        Array.Copy(values, values2, values.Length);
+        AddSinInPlace(values2, mult, offset, oscillations, phase);
+        return values2;
     }
 
     #endregion
@@ -712,11 +790,7 @@ public static class Generate
 
     public static LinePattern RandomLinePattern()
     {
-        LinePattern[] linePatterns = Enum
-            .GetValues(typeof(LinePattern))
-            .Cast<LinePattern>()
-            .ToArray();
-
+        LinePattern[] linePatterns = LinePattern.GetAllPatterns();
         int i = RandomInteger(linePatterns.Length);
         return linePatterns[i];
     }

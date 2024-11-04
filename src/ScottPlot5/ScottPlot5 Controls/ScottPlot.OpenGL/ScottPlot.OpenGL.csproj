@@ -11,10 +11,11 @@
 
         <!-- NuGet info -->
         <PackageId>ScottPlot.OpenGL</PackageId>
-        <Version>5.0.37</Version>
+        <Version>5.0.43</Version>
         <Authors>Scott Harden</Authors>
         <Company>Harden Technologies, LLC</Company>
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
+        <Copyright>Copyright (c) Scott Harden / Harden Technologies, LLC</Copyright>
         <PackageTags>plot graph data chart signal line bar heatmap scatter</PackageTags>
         <description>OpenGL-accelerated Plot Types</description>
         <PackageIcon>icon.png</PackageIcon>
@@ -27,7 +28,7 @@
         <SymbolPackageFormat>snupkg</SymbolPackageFormat>
         <IncludeSource>true</IncludeSource>
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
-        <NoWarn>NU5118, NU5100, NU1701, CS1591, CS1587, CS1573, CS1572, CS1570, CS1574, CS1584</NoWarn>
+        <NoWarn>NU5118, NU5100, NU1701, CS1591, CS1587, CS1573, CS1572, CS1570, CS1574, CS1584, CS8002</NoWarn>
 
         <!--- SourceLink configuration -->
         <EmbedUntrackedSources>true</EmbedUntrackedSources>
@@ -41,15 +42,21 @@
         <None Include="../../../../dev/icon/v5/scottplot-icon-rounded-border-128.png" Pack="true" PackagePath="icon.png" />
         <None Include="nuget-readme.md" Pack="true" PackagePath="readme.md" />
     </ItemGroup>
-    
+
     <!-- Package dependencies -->
     <ItemGroup>
-        <PackageReference Include="Microsoft.SourceLink.GitHub" Version="*">
+        <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
-        <PackageReference Include="SkiaSharp.Views" Version="2.*" />
         <ProjectReference Include="..\..\ScottPlot5\ScottPlot.csproj" />
     </ItemGroup>
+
+	<ItemGroup Condition="'$(TargetFramework)' == 'net462'">
+		<PackageReference Include="OpenTK" Version="3.3.1" NoWarn="NU1701" />
+	</ItemGroup>
+	<ItemGroup Condition="'$(TargetFramework)' != 'net462'">
+		<PackageReference Include="OpenTK" Version="4.3.0" NoWarn="NU1701" />
+	</ItemGroup>
 
 </Project>

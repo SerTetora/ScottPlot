@@ -14,10 +14,16 @@ internal class FrontPage : PageBase
         SB.AppendLine($"# ScottPlot 5.0 Cookbook");
         SB.AppendLine();
 
-        AddVersionInformation();
+        // manage chapters manually as the simplest way to enforce ordered chapters
+        string[] chapters = ["General", "Plot Types"];
+        if (chapters.Length != CB.Chapters.Length)
+            throw new InvalidOperationException("Chapter mismatch. Edit this area manually.");
+        foreach (string chapter in chapters)
+            if (!CB.Chapters.Contains(chapter))
+                throw new InvalidOperationException("Chapter mismatch. Edit this area manually.");
 
         // table of contents
-        foreach (string chapter in CB.Chapters)
+        foreach (string chapter in chapters)
         {
             SB.AppendLine($"<div class='mt-3 fs-4'><strong>{chapter}</strong></div>");
 
@@ -25,6 +31,11 @@ internal class FrontPage : PageBase
             foreach (var category in CB.Categories.Where(x => x.Chapter == chapter))
             {
                 SB.AppendLine($"<li><a href='{category.Url}'>{category.Name}</a> - {category.Description}</li>");
+            }
+            if (chapter == "General")
+            {
+                SB.AppendLine($"<li><a href='palettes'>Color Palettes</a> - Collections of colors which can be used to represent categorical data</li>");
+                SB.AppendLine($"<li><a href='colormaps'>Colormaps</a> - Color gradients available to represent continuous data</li>");
             }
             SB.AppendLine("</ul>");
         }

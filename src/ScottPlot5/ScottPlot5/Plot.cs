@@ -271,14 +271,28 @@ public class Plot : IDisposable
         return new Image(surface);
     }
 
+    [Obsolete("This method is deprecated. Use GetPngHtml() or GetSvgHtml()", true)]
+    public string GetImageHtml(int width, int height)
+    {
+        return GetPngHtml(width, height);
+    }
+
     /// <summary>
     /// Render the plot and return an HTML img element containing a Base64-encoded PNG
     /// </summary>
-    public string GetImageHtml(int width, int height)
+    public string GetPngHtml(int width, int height)
     {
         Image img = GetImage(width, height);
         byte[] bytes = img.GetImageBytes();
         return ImageOperations.GetImageHtml(bytes);
+    }
+
+    /// <summary>
+    /// Render the plot and return a plain text SVG element suitable for insertion into HTML
+    /// </summary>
+    public string GetSvgHtml(int width, int height)
+    {
+        return GetSvgXml(width, height);
     }
 
     public SavedImageInfo SaveJpeg(string filePath, int width, int height, int quality = 85)
@@ -322,7 +336,13 @@ public class Plot : IDisposable
         return svg.GetXml();
     }
 
-    public SavedImageInfo Save(string filePath, int width, int height, ImageFormat format = ImageFormat.Png, int quality = 85)
+    public SavedImageInfo Save(string filePath, int width, int height)
+    {
+        ImageFormat format = ImageFormats.FromFilename(filePath);
+        return Save(filePath, width, height, format);
+    }
+
+    public SavedImageInfo Save(string filePath, int width, int height, ImageFormat format, int quality = 85)
     {
         if (format == ImageFormat.Svg)
         {
@@ -436,12 +456,16 @@ public class Plot : IDisposable
         toRemove.ForEach(x => PlottableList.Remove(x));
     }
 
-    [Obsolete("use MoveToFront()")]
-    [EditorBrowsable(EditorBrowsableState.Never)]
+    /// <summary>
+    /// Move the indicated plottable to the end of the list so it is rendered last
+    /// and appears above all other plottables.
+    /// </summary>
     public void MoveToTop(IPlottable plottable) => MoveToFront(plottable);
 
-    [Obsolete("use MoveToBack()")]
-    [EditorBrowsable(EditorBrowsableState.Never)]
+    /// <summary>
+    /// Move the indicated plottable to the start of the list so it is rendered first
+    /// and appears below all other plottables.
+    /// </summary>
     public void MoveToBottom(IPlottable plottable) => MoveToBack(plottable);
 
     /// <summary>

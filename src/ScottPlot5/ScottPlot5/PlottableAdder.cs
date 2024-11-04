@@ -16,9 +16,23 @@ public class PlottableAdder(Plot plot)
     /// </summary>
     public IPalette Palette { get; set; } = new Palettes.Category10();
 
-    public Color GetNextColor()
+    private int NextColorIndex = 0;
+
+    /// <summary>
+    /// Return the next color of the <see cref="Palette"/>.
+    /// Colors reset if <see cref="Plot.PlottableList"/> is cleared.
+    /// </summary>
+    public Color GetNextColor(bool incrementCounter = true)
     {
-        return Palette.Colors[Plot.PlottableList.Count % Palette.Colors.Length];
+        if (Plot.PlottableList.Count == 0)
+            NextColorIndex = 0;
+
+        Color color = Palette.GetColor(NextColorIndex);
+
+        if (incrementCounter)
+            NextColorIndex++;
+
+        return color;
     }
 
     public Annotation Annotation(string text, Alignment alignment = Alignment.UpperLeft)
@@ -66,9 +80,43 @@ public class PlottableAdder(Plot plot)
         return Arrow(line.Start, line.End);
     }
 
+    public Annotation BackgroundText(string text, Color? color = null, double size = 48)
+    {
+        Annotation an = new()
+        {
+            Text = text,
+            LabelFontColor = color ?? Colors.Gray.WithAlpha(.3),
+            LabelFontSize = (float)size,
+            LabelBackgroundColor = Colors.Transparent,
+            LabelShadowColor = Colors.Transparent,
+            LabelBorderColor = Colors.Transparent,
+            Alignment = Alignment.MiddleCenter,
+            OffsetX = 0,
+            OffsetY = 0,
+        };
+
+        Plot.PlottableList.Insert(0, an);
+
+        return an;
+    }
+
+    public (Annotation line1, Annotation line2) BackgroundText(string line1, string line2, Color? color = null, double size1 = 48, double size2 = 24)
+    {
+        Annotation an1 = BackgroundText(line1, color, size1);
+        an1.Alignment = Alignment.LowerCenter;
+        an1.FractionRect = FractionRect.Row(0, 2);
+
+        Annotation an2 = BackgroundText(line2, color, size2);
+        an2.Alignment = Alignment.UpperCenter;
+        an2.FractionRect = FractionRect.Row(1, 2);
+
+        return (an1, an2);
+    }
+
     public BarPlot Bar(Bar bar)
     {
-        BarPlot bp = new(bar);
+        List<Bar> bars = [bar];
+        BarPlot bp = new(bars);
         Plottable(bp);
         return bp;
     }
@@ -85,9 +133,16 @@ public class PlottableAdder(Plot plot)
         return Bar(bar);
     }
 
-    public BarPlot Bars(IEnumerable<Bar> bars)
+    public BarPlot Bars(List<Bar> bars)
     {
         BarPlot bp = new(bars);
+        Plottable(bp);
+        return bp;
+    }
+
+    public BarPlot Bars(Bar[] bars)
+    {
+        BarPlot bp = new([.. bars]);
         Plottable(bp);
         return bp;
     }
@@ -96,6 +151,12 @@ public class PlottableAdder(Plot plot)
     {
         var positions = Enumerable.Range(0, values.Length).Select(x => (double)x);
         return Bars(positions, values);
+    }
+
+    public BarPlot Bars<T>(IEnumerable<double> positions, IEnumerable<T> values)
+    {
+        double[] values2 = NumericConversion.GenericToDoubleArray(values);
+        return Bars(positions, values2);
     }
 
     public BarPlot Bars(IEnumerable<double> positions, IEnumerable<double> values)
@@ -169,9 +230,17 @@ public class PlottableAdder(Plot plot)
         return callout;
     }
 
+    public CandlestickPlot Candlestick(OHLC[] ohlcs)
+    {
+        OHLCSourceArray dataSource = new(ohlcs);
+        CandlestickPlot candlestickPlot = new(dataSource);
+        Plot.PlottableList.Add(candlestickPlot);
+        return candlestickPlot;
+    }
+
     public CandlestickPlot Candlestick(List<OHLC> ohlcs)
     {
-        OHLCSource dataSource = new(ohlcs);
+        OHLCSourceList dataSource = new(ohlcs);
         CandlestickPlot candlestickPlot = new(dataSource);
         Plot.PlottableList.Add(candlestickPlot);
         return candlestickPlot;
@@ -193,6 +262,22 @@ public class PlottableAdder(Plot plot)
 
         Plot.Axes.Panels.Add(colorBar);
         return colorBar;
+    }
+
+    public ContourLines ContourLines(Coordinates3d[,] coordinates, int count = 10)
+    {
+        ContourLines contour = new() { ContourLineCount = count };
+        contour.Update(coordinates);
+        Plot.PlottableList.Add(contour);
+        return contour;
+    }
+
+    public ContourLines ContourLines(Coordinates3d[] coordinates, int count = 10)
+    {
+        ContourLines contour = new() { ContourLineCount = count };
+        contour.Update(coordinates);
+        Plot.PlottableList.Add(contour);
+        return contour;
     }
 
     public Coxcomb Coxcomb(IList<PieSlice> slices)
@@ -367,7 +452,22 @@ public class PlottableAdder(Plot plot)
         return heatmap;
     }
 
-    public HorizontalLine HorizontalLine(double y, float width = 2, Color? color = null, LinePattern pattern = LinePattern.Solid)
+    public Heatmap Heatmap(Coordinates3d[,] values)
+    {
+        int height = values.GetLength(0);
+        int width = values.GetLength(1);
+        double[,] intensities = new double[height, width];
+        for (int y = 0; y < height; y++)
+        {
+            for (int x = 0; x < width; x++)
+            {
+                intensities[y, x] = values[y, x].Z;
+            }
+        }
+        return Heatmap(intensities);
+    }
+
+    public HorizontalLine HorizontalLine(double y, float width = 2, Color? color = null, LinePattern pattern = default)
     {
         Color color2 = color ?? GetNextColor();
         HorizontalLine line = new()
@@ -454,6 +554,24 @@ public class PlottableAdder(Plot plot)
         return Line(start, end);
     }
 
+    public LollipopPlot Lollipop(double[] values)
+    {
+        var coordinates = Enumerable.Range(0, values.Length).Select(x => new Coordinates(x, values[x]));
+        return Lollipop(coordinates);
+    }
+
+    public LollipopPlot Lollipop(double[] values, double[] positions)
+    {
+        Coordinates[] coordinates = Coordinates.Zip(positions, values);
+        return Lollipop(coordinates);
+    }
+
+    public LollipopPlot Lollipop(IEnumerable<Coordinates> coordinates)
+    {
+        LollipopPlot plottable = new(coordinates) { Color = GetNextColor() };
+        Plot.PlottableList.Add(plottable);
+        return plottable;
+    }
 
     public Marker Marker(double x, double y, MarkerShape shape = MarkerShape.FilledCircle, float size = 10, Color? color = null)
     {
@@ -557,7 +675,7 @@ public class PlottableAdder(Plot plot)
 
     public OhlcPlot OHLC(List<OHLC> ohlcs)
     {
-        OHLCSource dataSource = new(ohlcs);
+        OHLCSourceList dataSource = new(ohlcs);
         OhlcPlot ohlc = new(dataSource);
         Plot.PlottableList.Add(ohlc);
         return ohlc;
@@ -615,24 +733,15 @@ public class PlottableAdder(Plot plot)
         return plottable;
     }
 
-    public PolarAxis PolarAxis(double maximumRadius = 1, bool hideCartesianAxesAndGrids = true)
+    public PolarAxis PolarAxis(double radius = 1.0)
     {
-        PolarAxis pol = new()
-        {
-            MaximumRadius = maximumRadius,
-        };
+        PolarAxis polarAxis = new() { };
+        polarAxis.SetCircles(radius, 5);
+        polarAxis.SetSpokes(12, radius * 1.1);
 
-        pol.RegenerateCircles();
-        pol.RegenerateSpokes();
-
-        Plot.PlottableList.Add(pol);
-
-        if (hideCartesianAxesAndGrids)
-        {
-            Plot.HideAxesAndGrid();
-        }
-
-        return pol;
+        Plot.PlottableList.Add(polarAxis);
+        Plot.HideAxesAndGrid();
+        return polarAxis;
     }
 
     public Polygon Polygon(Coordinates[] coordinates)
@@ -667,24 +776,71 @@ public class PlottableAdder(Plot plot)
         return sym;
     }
 
-    public Radar Radar(IReadOnlyList<RadarSeries> series)
+    public Radar Radar()
     {
-        Radar radar = new(series);
+        Radar radar = new();
+
         Plot.PlottableList.Add(radar);
+
+        Plot.HideAxesAndGrid();
         return radar;
+    }
+
+    public Radar Radar(double[] values)
+    {
+        List<double[]> values2 = [values];
+
+        return Radar(values2);
+    }
+
+    public Radar Radar(double[,] values)
+    {
+        List<double[]> valuesList = [];
+
+        for (int i = 0; i < values.GetLength(0); i++)
+        {
+            double[] row = new double[values.GetLength(1)];
+            for (int j = 0; j < row.Length; j++)
+            {
+                row[j] = values[i, j];
+            }
+            valuesList.Add(row);
+        }
+
+        return Radar(valuesList);
     }
 
     public Radar Radar(IEnumerable<IEnumerable<double>> series)
     {
-        List<RadarSeries> radarSeries = new();
+        double spokeCount = series.First().Count();
+        Radar radar = new();
+
+        int seriesIndex = 0;
         foreach (var values in series)
         {
-            var radarSerie = new RadarSeries(values.ToList(), Palette.GetColor(radarSeries.Count).WithOpacity(0.5));
-            radarSeries.Add(radarSerie);
+            Color color = Palette.GetColor(seriesIndex++);
+
+            double[] valuesArray = values.ToArray();
+            if (valuesArray.Length != spokeCount)
+                throw new InvalidOperationException("Every collection in the series must have the same number of items");
+
+            RadarSeries rs = new()
+            {
+                Values = valuesArray,
+                FillColor = color.WithOpacity(0.5),
+                LineColor = color.WithOpacity(1),
+            };
+            radar.Series.Add(rs);
         }
 
-        Radar radar = new(radarSeries);
+        double maxValue = series.Select(x => x.Max()).Max();
+        radar.PolarAxis.SetCircles(maxValue, 4);
+
+        radar.PolarAxis.SetSpokes(series.First().Count(), maxValue * 1.1, degreeLabels: false);
+
         Plot.PlottableList.Add(radar);
+
+        Plot.HideAxesAndGrid();
         return radar;
     }
 
@@ -718,6 +874,18 @@ public class PlottableAdder(Plot plot)
 
         Plot.PlottableList.Add(rp);
         return rp;
+    }
+
+    public ScaleBar ScaleBar(double width, double height)
+    {
+        ScaleBar scalebar = new()
+        {
+            Width = width,
+            Height = height,
+        };
+
+        Plot.PlottableList.Add(scalebar);
+        return scalebar;
     }
 
     public Scatter Scatter(IScatterSource source, Color? color = null)
@@ -958,6 +1126,20 @@ public class PlottableAdder(Plot plot)
         return txt;
     }
 
+    public TriangularAxis TriangularAxis(bool clockwise = true, bool hideAxisAndGrid = true, bool useSquareAxisUnits = true)
+    {
+        TriangularAxis ta = new(clockwise);
+        Plot.PlottableList.Add(ta);
+
+        if (hideAxisAndGrid)
+            Plot.HideAxesAndGrid();
+
+        if (useSquareAxisUnits)
+            Plot.Axes.SquareUnits();
+
+        return ta;
+    }
+
     public VectorField VectorField(IList<RootedCoordinateVector> vectors, Color? color = null)
     {
         VectorFieldDataSourceCoordinatesList vs = new(vectors);
@@ -968,7 +1150,7 @@ public class PlottableAdder(Plot plot)
         return field;
     }
 
-    public VerticalLine VerticalLine(double x, float width = 2, Color? color = null, LinePattern pattern = LinePattern.Solid)
+    public VerticalLine VerticalLine(double x, float width = 2, Color? color = null, LinePattern pattern = default)
     {
         Color color2 = color ?? GetNextColor();
         VerticalLine line = new()

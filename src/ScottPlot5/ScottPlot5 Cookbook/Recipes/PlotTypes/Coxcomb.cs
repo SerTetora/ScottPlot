@@ -2,7 +2,7 @@
 
 public class Coxcomb : ICategory
 {
-    public string Chapter => "Plot Types";
+    public Chapter Chapter => Chapter.PlotTypes;
     public string CategoryName => "Coxcomb Plot";
     public string CategoryDescription => "A Coxcomb chart is a pie graph " +
         "where the angle of slices is constant but the radii are not.";
@@ -25,7 +25,8 @@ public class Coxcomb : ICategory
                 new() { Value = 8, Label = "Blue",  FillColor = Colors.Blue.WithOpacity(0.5) },
             };
 
-            myPlot.Add.Coxcomb(slices);
+            var cox = myPlot.Add.Coxcomb(slices);
+            cox.SliceLabelDistance = 1.5;
 
             myPlot.Axes.Frameless();
             myPlot.ShowLegend();

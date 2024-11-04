@@ -3,16 +3,20 @@ using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media;
 using SkiaSharp.Views.Windows;
-using ScottPlot.Control;
+using System;
 
 namespace ScottPlot.WinUI;
+
+#pragma warning disable CS0618 // disable obsolete warnings
 
 public partial class WinUIPlot : UserControl, IPlotControl
 {
     public Plot Plot { get; internal set; }
     public SkiaSharp.GRContext? GRContext => null;
+
+    [Obsolete("Deprecated. Use UserInputProcessor instead. See ScottPlot.NET demo and FAQ for usage details.")]
     public IPlotInteraction Interaction { get; set; }
-    public IPlotMenu Menu { get; set; }
+    public IPlotMenu? Menu { get; set; }
     public Interactivity.UserInputProcessor UserInputProcessor { get; }
     public Window? AppWindow { get; set; } // https://stackoverflow.com/a/74286947
     public float DisplayScale { get; set; } = 1;
@@ -22,8 +26,8 @@ public partial class WinUIPlot : UserControl, IPlotControl
     public WinUIPlot()
     {
         Plot = new() { PlotControl = this };
-        Interaction = new Interaction(this);
-        UserInputProcessor = new(Plot);
+        Interaction = new Control.Interaction(this); // TODO: remove in an upcoming release
+        UserInputProcessor = new(this);
         Menu = new WinUIPlotMenu(this);
 
         Background = new SolidColorBrush(Microsoft.UI.Colors.White);
@@ -80,7 +84,7 @@ public partial class WinUIPlot : UserControl, IPlotControl
 
     public void ShowContextMenu(Pixel position)
     {
-        Menu.ShowContextMenu(position);
+        Menu?.ShowContextMenu(position);
     }
 
     private void OnPaintSurface(object? sender, SKPaintSurfaceEventArgs e)

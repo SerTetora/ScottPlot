@@ -1,5 +1,4 @@
 ﻿using NUnit.Framework.Internal;
-using ScottPlotCookbook.Recipes;
 using ScottPlotCookbook.Website;
 using System.Reflection;
 
@@ -16,7 +15,6 @@ internal class RecipeTests
 
         foreach (ICategory category in categories)
         {
-            category.Chapter.Should().NotBeNullOrWhiteSpace();
             category.CategoryName.Should().NotBeNullOrWhiteSpace();
             category.CategoryDescription.Should().NotBeNullOrWhiteSpace();
         }
@@ -74,18 +72,6 @@ internal class RecipeTests
     }
 
     [Test]
-    public static void Test_ChaptersList_HasAllChapters()
-    {
-        var orderedChapterNames = Query.GetChapterNamesInOrder();
-        var recipeChapterNames = Query.GetCategories().Select(x => x.Chapter).Distinct();
-
-        foreach (string chapter in recipeChapterNames)
-        {
-            orderedChapterNames.Should().Contain(chapter);
-        }
-    }
-
-    [Test]
     public static void Test_Recipes_HaveTestAttribute()
     {
         var recipeTypes = Assembly.GetAssembly(typeof(IRecipe))!
@@ -119,6 +105,17 @@ internal class RecipeTests
         {
             TypeInfo recipeClassInfo = recipeType.GetTypeInfo();
             recipeClassInfo.IsVisible.Should().BeTrue($"{recipeClassInfo.Namespace}.{recipeClassInfo.Name} should be public");
+        }
+    }
+
+    [Test]
+    public static void Test_MultiplotRecipes_AreFound()
+    {
+        var ds = Query.GetMultiplotDescriptions();
+        ds.Should().NotBeEmpty();
+        foreach (var recipe in ds)
+        {
+            Console.WriteLine($"{recipe.Key} - {recipe.Value}");
         }
     }
 }

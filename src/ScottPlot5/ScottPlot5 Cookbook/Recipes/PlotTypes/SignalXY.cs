@@ -2,7 +2,7 @@
 
 public class SignalXY : ICategory
 {
-    public string Chapter => "Plot Types";
+    public Chapter Chapter => Chapter.PlotTypes;
     public string CategoryName => "SignalXY Plot";
     public string CategoryDescription => "SignalXY are a high performance plot type " +
         "optimized for X/Y pairs where the X values are always ascending. " +
@@ -57,6 +57,25 @@ public class SignalXY : ICategory
 
             // add a SignalXY plot
             myPlot.Add.SignalXY(xs, ys);
+        }
+    }
+
+    public class SignalXYDateTime : RecipeBase
+    {
+        public override string Name => "SignalXY DateTime Axis";
+        public override string Description => "SignalXY plots can display unevenly spaced " +
+            "time series data using a DateTime horizontal axis.";
+
+        [Test]
+        public override void Execute()
+        {
+            DateTime start = new(2024, 01, 01);
+            DateTime[] xs = Generate.ConsecutiveDays(100, start);
+
+            double[] ys = Generate.RandomWalk(100);
+
+            myPlot.Add.SignalXY(xs, ys);
+            myPlot.Axes.DateTimeTicksBottom();
         }
     }
 

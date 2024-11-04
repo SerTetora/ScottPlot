@@ -885,6 +885,48 @@ public class AxisManager
     }
 
     /// <summary>
+    /// Define the amount of whitespace to place on the left and right of the data area when calling <see cref="AutoScale()"/>.
+    /// Values are a fraction from 0 (tightly fit the data) to 1 (lots of whitespace).
+    /// </summary>
+    public void MarginsX(double horizontal = 0.1)
+    {
+        if (AutoScaler is AutoScalers.FractionalAutoScaler scaler)
+        {
+            scaler.SetMarginsX(horizontal);
+            AutoScale();
+        }
+        else
+        {
+            Margins(horizontal: horizontal, vertical: 0.15);
+        }
+    }
+
+    /// <summary>
+    /// Define the amount of whitespace to place on the bottom and top of the data area when calling <see cref="AutoScale()"/>.
+    /// Values are a fraction from 0 (tightly fit the data) to 1 (lots of whitespace).
+    /// </summary>
+    public void MarginsY(double vertical = 0.15)
+    {
+        if (AutoScaler is AutoScalers.FractionalAutoScaler scaler)
+        {
+            scaler.SetMarginsY(vertical);
+            AutoScale();
+        }
+        else
+        {
+            Margins(horizontal: 0.1, vertical: vertical);
+        }
+    }
+
+    /// <summary>
+    /// Auto-scale to tightly fit the data so there is no spacing between data points and the edge of the data area
+    /// </summary>
+    public void TightMargins()
+    {
+        Margins(0, 0);
+    }
+
+    /// <summary>
     /// Define the amount of whitespace to place around the data area when calling <see cref="AutoScale()"/>.
     /// Values are a fraction from 0 (tightly fit the data) to 1 (lots of whitespace).
     /// </summary>
@@ -899,7 +941,10 @@ public class AxisManager
     /// </summary>
     public void SquareUnits()
     {
-        AxisRules.SquareZoomOut rule = new(Bottom, Left);
+        IAxisRule rule = Plot.PlotControl is null
+            ? new AxisRules.SquareZoomOut(Bottom, Left) // best for console apps
+            : new AxisRules.SquarePreserveX(Bottom, Left); // best for interactive apps
+
         Rules.Add(rule);
     }
 

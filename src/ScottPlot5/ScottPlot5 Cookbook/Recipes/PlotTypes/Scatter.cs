@@ -2,7 +2,7 @@
 
 public class Scatter : ICategory
 {
-    public string Chapter => "Plot Types";
+    public Chapter Chapter => Chapter.PlotTypes;
     public string CategoryName => "Scatter Plot";
     public string CategoryDescription => "Scatter plots display points at X/Y locations in coordinate space.";
 
@@ -152,12 +152,15 @@ public class Scatter : ICategory
         [Test]
         public override void Execute()
         {
-            LinePattern[] patterns = Enum.GetValues<LinePattern>();
+            List<LinePattern> patterns = [];
+            patterns.AddRange(LinePattern.GetAllPatterns());
+            patterns.Add(new([2, 2, 5, 10], 0, "Custom"));
+
             ScottPlot.Palettes.ColorblindFriendly palette = new();
 
-            for (int i = 0; i < patterns.Length; i++)
+            for (int i = 0; i < patterns.Count; i++)
             {
-                double yOffset = patterns.Length - i;
+                double yOffset = patterns.Count - i;
                 double[] xs = Generate.Consecutive(51);
                 double[] ys = Generate.Sin(51, offset: yOffset);
 
@@ -167,7 +170,7 @@ public class Scatter : ICategory
                 sp.LinePattern = patterns[i];
                 sp.Color = palette.GetColor(i);
 
-                var txt = myPlot.Add.Text(patterns[i].ToString(), 51, yOffset);
+                var txt = myPlot.Add.Text(patterns[i].Name, 51, yOffset);
                 txt.LabelFontColor = sp.Color;
                 txt.LabelFontSize = 22;
                 txt.LabelBold = true;
@@ -501,6 +504,40 @@ public class Scatter : ICategory
 
             // use tight margins so data goes to the edge of the plot
             myPlot.Axes.Margins(0, 0, 0, 0.1);
+        }
+    }
+
+    public class ScatterStackedShading : RecipeBase
+    {
+        public override string Name => "Stacked Scatter with Shading";
+        public override string Description => "Demonstrates how to combine filled scatter plots " +
+            "with vertical and horizontal offsets to achieve an interesting visual effect.";
+
+        [Test]
+        public override void Execute()
+        {
+            double[] xs = ScottPlot.Generate.Consecutive(100);
+            ScottPlot.Colormaps.MellowRainbow cmap = new();
+
+            for (int i = 0; i < 10; i++)
+            {
+                double yOffset = 9 - i * 0.5;
+                double[] ys = Generate.Sigmoidal(xs.Length)
+                    .Select(y => y + yOffset)
+                    .ToArray();
+
+                Generate.AddNoiseInPlace(ys, 0.1);
+
+                var sig = myPlot.Add.ScatterLine(xs, ys);
+                sig.LineColor = Colors.Black;
+                sig.LineWidth = 1.5f;
+                sig.FillY = true;
+                sig.FillYValue = yOffset;
+                sig.FillYAboveColor = cmap.GetColor(i, 10);
+            }
+
+            myPlot.HideGrid();
+            myPlot.Axes.MarginsX(0);
         }
     }
 }

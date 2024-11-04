@@ -2,6 +2,8 @@
 
 public static class Palette
 {
+    public static IPalette Default { get; set; } = new Palettes.Category10();
+
     /// <summary>
     /// Create a custom palette from an array of colors
     /// </summary>
@@ -28,7 +30,7 @@ public static class Palette
             .Where(x => x.IsClass)
             .Where(x => !x.IsAbstract)
             .Where(x => x.GetInterfaces().Contains(typeof(IPalette)))
-            .Where(x => x.GetConstructors().Where(x => x.GetParameters().Count() == 0).Any())
+            .Where(x => x.GetConstructors().Where(x => x.GetParameters().Length == 0).Any())
             .Select(x => (IPalette)Activator.CreateInstance(x)!)
             .ToArray();
     }

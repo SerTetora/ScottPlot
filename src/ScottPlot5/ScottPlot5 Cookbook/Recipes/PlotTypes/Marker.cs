@@ -2,7 +2,7 @@
 
 public class Marker : ICategory
 {
-    public string Chapter => "Plot Types";
+    public Chapter Chapter => Chapter.PlotTypes;
     public string CategoryName => "Marker";
     public string CategoryDescription => "Markers can be placed on the plot in coordinate space.";
 
@@ -100,6 +100,22 @@ public class Marker : ICategory
 
             myPlot.Add.Markers(xs, sin, MarkerShape.OpenCircle, 15, Colors.Green);
             myPlot.Add.Markers(xs, cos, MarkerShape.FilledDiamond, 10, Colors.Magenta);
+        }
+    }
+
+    public class MarkersColormap : RecipeBase
+    {
+        public override string Name => "Marker with Colormap";
+        public override string Description => "A colormap may be used to style a collection of markers";
+
+        [Test]
+        public override void Execute()
+        {
+            double[] xs = Generate.Consecutive(51);
+            double[] ys = Generate.Sin(51);
+
+            var markers = myPlot.Add.Markers(xs, ys);
+            markers.Colormap = new ScottPlot.Colormaps.MellowRainbow();
         }
     }
 

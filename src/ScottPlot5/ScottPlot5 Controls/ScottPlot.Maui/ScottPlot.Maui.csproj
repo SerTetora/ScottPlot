@@ -22,10 +22,11 @@
 
         <!-- NuGet info -->
         <PackageId>ScottPlot.Maui</PackageId>
-        <Version>5.0.37</Version>
+        <Version>5.0.43</Version>
         <Authors>Scott Harden</Authors>
         <Company>Harden Technologies, LLC</Company>
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
+        <Copyright>Copyright (c) Scott Harden / Harden Technologies, LLC</Copyright>
         <PackageTags>plot graph data chart signal line bar heatmap scatter</PackageTags>
         <description>User controls for displaying interactive plots in .NET Maui applications</description>
         <PackageIcon>icon.png</PackageIcon>
@@ -44,13 +45,14 @@
         <Deterministic>true</Deterministic>
         <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
 
-        <NoWarn>CS1591</NoWarn>
+        <NoWarn>CS1591, CS8002</NoWarn>
+        <SignAssembly>True</SignAssembly>
+        <AssemblyOriginatorKeyFile>../../Key.snk</AssemblyOriginatorKeyFile>
     </PropertyGroup>
 
     <!-- Include additional files for the NuGet package -->
     <ItemGroup>
-        <None Include="../../../../dev/icon/v5/scottplot-icon-rounded-border-128.png" Pack="true"
-            PackagePath="icon.png" />
+        <None Include="../../../../dev/icon/v5/scottplot-icon-rounded-border-128.png" Pack="true" PackagePath="icon.png" />
         <None Include="nuget-readme.md" Pack="true" PackagePath="readme.md" />
     </ItemGroup>
 
@@ -60,7 +62,7 @@
         <PackageReference Include="Microsoft.Maui.Controls.Compatibility" Version="$(MauiVersion)" />
         <PackageReference Include="SkiaSharp.Views.Maui.Controls" Version="2.88.8" />
         <PackageReference Include="SkiaSharp.Views.Maui.Core" Version="2.88.8" />
-        <PackageReference Include="Microsoft.SourceLink.GitHub" Version="*">
+        <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>

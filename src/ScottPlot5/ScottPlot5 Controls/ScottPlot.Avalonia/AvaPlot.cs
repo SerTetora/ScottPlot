@@ -5,19 +5,22 @@ using Avalonia.Media;
 using Avalonia.Platform;
 using Avalonia.Rendering.SceneGraph;
 using Avalonia.Threading;
-using ScottPlot.Control;
 using SkiaSharp;
 
 using Controls = Avalonia.Controls;
+using System;
 
 namespace ScottPlot.Avalonia;
+
+#pragma warning disable CS0618 // disable obsolete warnings
 
 public class AvaPlot : Controls.Control, IPlotControl
 {
     public Plot Plot { get; internal set; }
 
+    [Obsolete("Deprecated. Use UserInputProcessor instead. See ScottPlot.NET demo and FAQ for usage details.")]
     public IPlotInteraction Interaction { get; set; }
-    public IPlotMenu Menu { get; set; }
+    public IPlotMenu? Menu { get; set; }
     public Interactivity.UserInputProcessor UserInputProcessor { get; }
 
     public GRContext? GRContext => null;
@@ -29,8 +32,8 @@ public class AvaPlot : Controls.Control, IPlotControl
         Plot = new() { PlotControl = this };
         ClipToBounds = true;
         DisplayScale = DetectDisplayScale();
-        Interaction = new Interaction(this);
-        UserInputProcessor = new(Plot);
+        Interaction = new Control.Interaction(this); // TODO: remove in an upcoming release
+        UserInputProcessor = new(this);
         Menu = new AvaPlotMenu(this);
         Focusable = true; // Required for keyboard events
         Refresh();
@@ -93,7 +96,7 @@ public class AvaPlot : Controls.Control, IPlotControl
 
     public void ShowContextMenu(Pixel position)
     {
-        Menu.ShowContextMenu(position);
+        Menu?.ShowContextMenu(position);
     }
 
     protected override void OnPointerPressed(PointerPressedEventArgs e)

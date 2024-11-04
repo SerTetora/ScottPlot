@@ -83,6 +83,17 @@ public readonly struct AxisLimits : IEquatable<AxisLimits>
         Top = limits.Top;
     }
 
+    public AxisLimits(IEnumerable<Coordinates3d> coordinates)
+    {
+        ExpandingAxisLimits limits = new();
+        limits.Expand(coordinates);
+
+        Left = limits.Left;
+        Right = limits.Right;
+        Bottom = limits.Bottom;
+        Top = limits.Top;
+    }
+
     public AxisLimits InvertedVertically() => new(Left, Right, Top, Bottom);
     public AxisLimits InvertedHorizontally() => new(Right, Left, Bottom, Top);
 
@@ -189,6 +200,16 @@ public readonly struct AxisLimits : IEquatable<AxisLimits>
         yMax = zoomToY + spanTop / fracY;
 
         return new(xMin, xMax, yMin, yMax);
+    }
+
+    public bool Contains(double x, double y)
+    {
+        return Rect.Contains(x, y);
+    }
+
+    public bool Contains(Coordinates pt)
+    {
+        return Rect.Contains(pt);
     }
 
     public bool Equals(AxisLimits other)

@@ -13,9 +13,10 @@ public interface IPlotControl
     void Refresh();
 
     /// <summary>
-    /// Options for configuring user inputs.
-    /// This functionality is being replaced by <see cref="UserInputProcessor"/>.
+    /// Legacy options for plot manipulation in response to user inputs.
+    /// This functionality has been replaced by <see cref="UserInputProcessor"/>.
     /// </summary>
+    [Obsolete("Deprecated. Use IPlotControl.UserInputProcessor instead. See ScottPlot.NET demo and FAQ for usage details.")]
     IPlotInteraction Interaction { get; set; }
 
     /// <summary>
@@ -27,7 +28,7 @@ public interface IPlotControl
     /// <summary>
     /// Platform-specific logic for managing the context menu
     /// </summary>
-    IPlotMenu Menu { get; set; }
+    IPlotMenu? Menu { get; set; }
 
     /// <summary>
     /// Launch the default pop-up menu (typically in response to a right-click) at the given position in the control

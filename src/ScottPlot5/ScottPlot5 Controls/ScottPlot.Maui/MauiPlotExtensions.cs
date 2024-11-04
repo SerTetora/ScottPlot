@@ -1,64 +1,91 @@
-﻿namespace ScottPlot.Maui;
+﻿using SkiaSharp;
+using SkiaSharp.Views.Maui;
+using ScottPlot.Interactivity;
+
+namespace ScottPlot.Maui;
 
 internal static class MauiPlotExtensions
 {
-    internal static Pixel Pixel(this TappedEventArgs e, MauiPlot plot)
+    internal static Pixel ToPixel(this PanUpdatedEventArgs e) => new Pixel(e.TotalX, e.TotalY);
+
+    internal static Pixel ToPixel(this Point e) => new Pixel(e.X, e.Y);
+
+    internal static Pixel ToPixelScaled(this Point e, float width, float height) => new Pixel(e.X * width, e.Y * height);
+
+    internal static Pixel ToPixel(this SKPoint e) => new Pixel(e.X, e.Y);
+
+    internal static void ProcessPanUpdated(this UserInputProcessor processor, MauiPlot plot, PanUpdatedEventArgs e)
     {
-        Point? position = e.GetPosition(null);
-
-        if (position is null)
-            return new(double.NaN, double.NaN);
-
-        Point tmpPos = new Point(
-                position.Value.X * plot.DisplayScale,
-                position.Value.X * plot.DisplayScale
-            );
-
-        return tmpPos.ToPixel();
-    }
-
-    internal static Pixel ToPixel(this Point p)
-    {
-        return new Pixel((float)p.X, (float)p.Y);
-    }
-
-    internal static Point ToPoint(this Pixel p)
-    {
-        return new Point(p.X, p.Y);
-    }
-
-    internal static Control.MouseButton ToButton(this TappedEventArgs e, MauiPlot plot)
-    {
-        var props = e.GetPosition(plot);
-        switch (e.Buttons)
+        IUserAction action = e.StatusType switch
         {
-            case ButtonsMask.Primary:
-                return Control.MouseButton.Left;
-            case ButtonsMask.Secondary:
-                return Control.MouseButton.Right;
-            default:
-                return Control.MouseButton.Unknown;
+            GestureStatus.Started => new Interactivity.UserActions.LeftMouseDown(Pixel.Zero),
+            GestureStatus.Running => new Interactivity.UserActions.MouseMove(e.ToPixel()),
+            GestureStatus.Completed => new Interactivity.UserActions.LeftMouseUp(plot.LastPixel),
+            _ => new Interactivity.UserActions.Unknown(),
+        };
+        plot.LastPixel = e.ToPixel();
+
+        processor.Process(action);
+    }
+
+    internal static void ProcessPinchUpdated(this UserInputProcessor processor, MauiPlot plot, PinchGestureUpdatedEventArgs e, float width, float height)
+    {
+        if (e.Status == GestureStatus.Running)
+        {
+            Pixel pixel = e.ScaleOrigin.ToPixelScaled(width, height);
+
+            IUserAction action = e.Scale > 1
+                ? new ScottPlot.Interactivity.UserActions.MouseWheelUp(pixel)
+                : new ScottPlot.Interactivity.UserActions.MouseWheelDown(pixel);
+
+            processor.Process(action);
         }
     }
 
-    /*internal static Control.Key Key(this KeyRoutedEventArgs e)
+    internal static void ProcessMouseDown(this UserInputProcessor processor, MauiPlot plot, SKTouchEventArgs e)
     {
-        return e.Key switch
+        Pixel pixel = e.Location.ToPixel();
+
+        IUserAction action = e.MouseButton switch
         {
-            VirtualKey.Control => Control.Key.Ctrl,
-            VirtualKey.LeftControl => Control.Key.Ctrl,
-            VirtualKey.RightControl => Control.Key.Ctrl,
-
-            VirtualKey.Menu => Control.Key.Alt,
-            VirtualKey.LeftMenu => Control.Key.Alt,
-            VirtualKey.RightMenu => Control.Key.Alt,
-
-            VirtualKey.Shift => Control.Key.Shift,
-            VirtualKey.LeftShift => Control.Key.Shift,
-            VirtualKey.RightShift => Control.Key.Shift,
-
-            _ => Control.Key.Unknown,
+            SKMouseButton.Left => new Interactivity.UserActions.LeftMouseDown(pixel),
+            SKMouseButton.Middle => new Interactivity.UserActions.MiddleMouseDown(pixel),
+            SKMouseButton.Right => new Interactivity.UserActions.RightMouseDown(pixel),
+            _ => new Interactivity.UserActions.Unknown()
         };
-    }*/
-}
+        processor.Process(action);
+    }
 
+    internal static void ProcessMouseUp(this UserInputProcessor processor, MauiPlot plot, SKTouchEventArgs e)
+    {
+        Pixel pixel = e.Location.ToPixel();
+
+        IUserAction action = e.MouseButton switch
+        {
+            SKMouseButton.Left => new Interactivity.UserActions.LeftMouseUp(pixel),
+            SKMouseButton.Middle => new Interactivity.UserActions.MiddleMouseUp(pixel),
+            SKMouseButton.Right => new Interactivity.UserActions.RightMouseUp(pixel),
+            _ => new Interactivity.UserActions.Unknown()
+        };
+        processor.Process(action);
+    }
+
+    internal static void ProcessMouseMove(this UserInputProcessor processor, MauiPlot plot, SKTouchEventArgs e)
+    {
+        Pixel pixel = e.Location.ToPixel();
+
+        IUserAction action = new Interactivity.UserActions.MouseMove(pixel);
+        processor.Process(action);
+    }
+
+    internal static void ProcessWheelChanged(this UserInputProcessor processor, MauiPlot plot, SKTouchEventArgs e)
+    {
+        Pixel pixel = e.Location.ToPixel();
+
+        IUserAction action = e.WheelDelta > 0
+          ? new ScottPlot.Interactivity.UserActions.MouseWheelUp(pixel)
+          : new ScottPlot.Interactivity.UserActions.MouseWheelDown(pixel);
+
+        processor.Process(action);
+    }
+}

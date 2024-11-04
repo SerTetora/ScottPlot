@@ -1,6 +1,6 @@
 ﻿namespace ScottPlot.Plottables;
 
-public class Signal(ISignalSource data) : IPlottable, IHasLine, IHasMarker, IHasLegendText
+public class Signal(ISignalSource data) : IPlottable, IHasLine, IHasMarker, IHasLegendText, IGetNearest
 {
     public bool IsVisible { get; set; } = true;
     public IAxes Axes { get; set; } = new Axes();
@@ -32,6 +32,14 @@ public class Signal(ISignalSource data) : IPlottable, IHasLine, IHasMarker, IHas
     /// at each data point when the plot is zoomed far in.
     /// </summary>
     public float MaximumMarkerSize { get; set; } = 4;
+
+    /// <summary>
+    /// Setting this flag causes lines to be drawn between every visible point
+    /// (similar to scatter plots) to improve anti-aliasing in static images.
+    /// Setting this will decrease performance for large datasets 
+    /// and is not recommended for interactive environments.
+    /// </summary>
+    public bool AlwaysUseLowDensityMode { get; set; } = false;
 
     public Color Color
     {
@@ -70,7 +78,7 @@ public class Signal(ISignalSource data) : IPlottable, IHasLine, IHasMarker, IHas
             return;
         }
 
-        if (PointsPerPixel() < 1)
+        if (PointsPerPixel() < 1 || AlwaysUseLowDensityMode)
         {
             RenderLowDensity(rp);
         }
@@ -149,5 +157,25 @@ public class Signal(ISignalSource data) : IPlottable, IHasLine, IHasMarker, IHas
         }
 
         rp.Canvas.DrawPath(path, paint);
+    }
+
+    public DataPoint GetNearest(Coordinates location, RenderDetails renderInfo, float maxDistance = 15)
+    {
+        if (Data is IDataSource ds)
+            return DataSourceUtilities.GetNearestFast(ds, location, renderInfo, maxDistance, Axes.XAxis, Axes.YAxis);
+        else if (Data is IGetNearest gn)
+            return gn.GetNearest(location, renderInfo, maxDistance);
+        else
+            throw new NotImplementedException("Data does not implement IDataSource (preferred) or IGetNearest");
+    }
+
+    public DataPoint GetNearestX(Coordinates location, RenderDetails renderInfo, float maxDistance = 15)
+    {
+        if (Data is IDataSource ds)
+            return DataSourceUtilities.GetNearestXFast(ds, location, renderInfo, maxDistance, Axes.XAxis);
+        else if (Data is IGetNearest gn)
+            return gn.GetNearest(location, renderInfo, maxDistance);
+        else
+            throw new NotImplementedException("Data does not implement IDataSource (preferred) or IGetNearest");
     }
 }

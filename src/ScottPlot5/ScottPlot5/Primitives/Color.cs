@@ -1,20 +1,5 @@
 ﻿namespace ScottPlot;
 
-internal static class ColorByteExtensions
-{
-    static public byte Lighten(this byte color, double fraction)
-    {
-        var fColor = color + (255 - color) * fraction;
-        return (byte)Math.Min(Math.Max(fColor, 0), 255);
-    }
-
-    static public byte Darken(this byte color, double fraction)
-    {
-        var fColor = color * fraction;
-        return (byte)Math.Min(Math.Max(fColor, 0), 255);
-    }
-}
-
 public readonly struct Color
 {
     public readonly byte Red;
@@ -22,7 +7,6 @@ public readonly struct Color
     public readonly byte Blue;
     public readonly byte Alpha;
 
-    // TODO: benchmark if referencing these is slower
     public byte R => Red;
     public byte G => Green;
     public byte B => Blue;
@@ -36,6 +20,21 @@ public readonly struct Color
                 (uint)Red << 16 |
                 (uint)Green << 8 |
                 (uint)Blue << 0;
+        }
+    }
+
+    public uint PremultipliedARGB
+    {
+        get
+        {
+            byte premultipliedRed = (byte)((Red * Alpha) / 255);
+            byte premultipliedGreen = (byte)((Green * Alpha) / 255);
+            byte premultipliedBlue = (byte)((Blue * Alpha) / 255);
+            return
+                ((uint)Alpha << 24) |
+                ((uint)premultipliedRed << 16) |
+                ((uint)premultipliedGreen << 8) |
+                ((uint)premultipliedBlue << 0);
         }
     }
 
@@ -58,6 +57,34 @@ public readonly struct Color
         Green = (byte)(green * 255);
         Blue = (byte)(blue * 255);
         Alpha = (byte)(alpha * 255);
+    }
+
+    public Color(string hexCode) : this(Hex2Argb(hexCode)) { }
+
+    public Color(uint argb)
+    {
+        Alpha = (byte)(argb >> 24);
+        Red = (byte)(argb >> 16);
+        Green = (byte)(argb >> 8);
+        Blue = (byte)(argb >> 0);
+    }
+
+    [Obsolete("use ScottPlot.Color.FromSKColor()")]
+    public Color(SKColor color)
+    {
+        Alpha = color.Alpha;
+        Red = color.Red;
+        Green = color.Green;
+        Blue = color.Blue;
+    }
+
+    [Obsolete("use ScottPlot.Color.FromSDColor()")]
+    public Color(System.Drawing.Color color)
+    {
+        Alpha = color.A;
+        Red = color.R;
+        Green = color.G;
+        Blue = color.B;
     }
 
     public static bool operator ==(Color a, Color b)
@@ -116,44 +143,58 @@ public readonly struct Color
 
     public static Color FromARGB(uint argb)
     {
-        byte alpha = (byte)(argb >> 24);
-        byte red = (byte)(argb >> 16);
-        byte green = (byte)(argb >> 8);
-        byte blue = (byte)(argb >> 0);
-        return new Color(red, green, blue, alpha);
+        return new Color(argb);
     }
 
-    public static Color FromHex(string hex)
+    public static Color FromHex(string hex) => new(hex);
+
+    public static Color FromHtml(string html) => new(html);
+
+    private static uint Hex2Argb(string hex)
     {
+        uint rgba = 0;
+
+        // strip the leading pound sign
         if (hex[0] == '#')
         {
-            return FromHex(hex.Substring(1));
+            hex = hex.Substring(1);
         }
 
+        // add alpha if it is not defined
         if (hex.Length == 6)
         {
             hex += "FF";
         }
 
-        if (!uint.TryParse(hex, System.Globalization.NumberStyles.HexNumber, null, out uint rgba))
+        if (uint.TryParse(hex, NumberStyles.HexNumber, null, out uint parsedValue))
         {
-            return new Color(0, 0, 0);
+            rgba = parsedValue;
         }
 
-        uint argb = ((rgba & 0xFF) << 24) | (rgba >> 8);
-        return FromARGB(argb);
+        // NOTE: if parsing fails the RGB value will be black
+
+        return ((rgba & 0xFF) << 24) | (rgba >> 8);
     }
 
-    public static Color[] FromHex(string[] hex)
+    /// <summary>
+    /// Create a collection of colors from a collection of hex strings formatted like "#66AA99"
+    /// </summary>
+    public static Color[] FromHex(IEnumerable<string> hex)
     {
-        return hex.Select(x => FromHex(x)).ToArray();
+        return hex.Select(FromHex).ToArray();
     }
 
+    /// <summary>
+    /// Create a ScottPlot color from a System Drawing Color
+    /// </summary>
     public static Color FromColor(System.Drawing.Color color)
     {
-        return new Color(color.R, color.G, color.B, color.A);
+        return FromSDColor(color);
     }
 
+    /// <summary>
+    /// return a string like "#6699AA" or "#6699AA42" if a semitransparent alpha is in use
+    /// </summary>
     public string ToHex()
     {
         return Alpha == 255
@@ -161,29 +202,74 @@ public readonly struct Color
             : $"#{R:X2}{G:X2}{B:X2}{A:X2}";
     }
 
+    /// <summary>
+    /// Create a ScottPlot color from a SkiaSharp Color
+    /// </summary>
     public static Color FromSKColor(SKColor skcolor)
     {
         return new Color(skcolor.Red, skcolor.Green, skcolor.Blue, skcolor.Alpha);
     }
 
+    /// <summary>
+    /// Create a ScottPlot color from a System Drawing Color
+    /// </summary>
+    public static Color FromSDColor(System.Drawing.Color sdColor)
+    {
+        return new Color(sdColor.R, sdColor.G, sdColor.B, sdColor.A);
+    }
+
+    /// <summary>
+    /// return a string like "#6699AA"
+    /// </summary>
     public string ToStringRGB()
     {
         return "#" + Red.ToString("X2") + Green.ToString("X2") + Blue.ToString("X2");
     }
 
+    /// <summary>
+    /// return a string like "#6699AAFF"
+    /// </summary>
     public string ToStringRGBA()
     {
         return "#" + Red.ToString("X2") + Green.ToString("X2") + Blue.ToString("X2") + Alpha.ToString("X2");
     }
 
+    /// <summary>
+    /// Create a SkiaSharp color
+    /// </summary>
     public SkiaSharp.SKColor ToSKColor()
     {
         return new SKColor(Red, Green, Blue, Alpha);
     }
 
+    /// <summary>
+    /// Create a System Drawing color
+    public System.Drawing.Color ToSDColor()
+    {
+        return System.Drawing.Color.FromArgb(Alpha, Red, Green, Blue);
+    }
+
+    /// <summary>
+    /// Luminance as a fraction from 0 to 1
+    /// </summary>
+    public float Luminance => ToHSL().l;
+
+    /// <summary>
+    /// Hue as a fraction from 0 to 1
+    /// </summary>
+    public float Hue => ToHSL().h;
+
+    /// <summary>
+    /// Saturation as a fraction from 0 to 1
+    /// </summary>
+    public float Saturation => ToHSL().s;
+
+    /// <summary>
+    /// Hue, Saturation, and Luminance (as fractions from 0 to 1)
+    /// </summary>
     public (float h, float s, float l) ToHSL()
     {
-        // Converter adapted from http://en.wikipedia.org/wiki/HSL_color_space
+        // adapted from http://en.wikipedia.org/wiki/HSL_color_space
         float r = Red / 255f;
         float g = Green / 255f;
         float b = Blue / 255f;
@@ -220,6 +306,9 @@ public readonly struct Color
         return (h, s, l);
     }
 
+    /// <summary>
+    /// Create a Color given Hue, Saturation, and Luminance (as fractions from 0 to 1)
+    /// </summary>
     public static Color FromHSL(float hue, float saturation, float luminosity, float alpha = 1)
     {
         // adapted from Microsoft.Maui.Graphics/Color.cs (MIT license)
@@ -271,8 +360,19 @@ public readonly struct Color
     {
         if (fraction < 0)
             return Darken(-fraction);
+
         fraction = Math.Min(1f, fraction);
-        return new Color(R.Lighten(fraction), G.Lighten(fraction), B.Lighten(fraction), Alpha);
+
+        static byte LightenByte(byte color, double fraction)
+        {
+            var fColor = color + (255 - color) * fraction;
+            return (byte)Math.Min(Math.Max(fColor, 0), 255);
+        }
+
+        byte r = LightenByte(R, fraction);
+        byte g = LightenByte(G, fraction);
+        byte b = LightenByte(B, fraction);
+        return new Color(r, g, b, Alpha);
     }
 
     /// <summary>
@@ -283,8 +383,19 @@ public readonly struct Color
     {
         if (fraction < 0)
             return Lighten(-fraction);
+
         fraction = Math.Max(0f, 1f - fraction);
-        return new Color(R.Darken(fraction), G.Darken(fraction), B.Darken(fraction), Alpha);
+
+        static byte DarkenByte(byte color, double fraction)
+        {
+            var fColor = color * fraction;
+            return (byte)Math.Min(Math.Max(fColor, 0), 255);
+        }
+
+        byte r = DarkenByte(R, fraction);
+        byte g = DarkenByte(G, fraction);
+        byte b = DarkenByte(B, fraction);
+        return new Color(r, g, b, Alpha);
     }
 
     /// <summary>
@@ -298,9 +409,9 @@ public readonly struct Color
         return InterpolateRgb(otherColor, fraction);
     }
 
-    public Color InterpolateRgb(Color c1, double factor)
+    public Color InterpolateRgb(Color c1, double fraction)
     {
-        return InterpolateRgb(this, c1, factor);
+        return InterpolateRgb(this, c1, fraction);
     }
 
     public Color[] InterpolateArrayRgb(Color c1, int steps)
@@ -308,21 +419,21 @@ public readonly struct Color
         return InterpolateRgbArray(this, c1, steps);
     }
 
-    static byte InterpolateRgb(byte b1, byte b2, double factor)
+    static byte InterpolateRgb(byte b1, byte b2, double fraction)
     {
         if (b1 < b2)
-            return Math.Min(Math.Max((byte)(b1 + (b2 - b1) * factor), (byte)0), (byte)255);
+            return Math.Min(Math.Max((byte)(b1 + (b2 - b1) * fraction), (byte)0), (byte)255);
         else
-            return Math.Min(Math.Max((byte)(b2 + (b1 - b2) * (1 - factor)), (byte)0), (byte)255);
+            return Math.Min(Math.Max((byte)(b2 + (b1 - b2) * (1 - fraction)), (byte)0), (byte)255);
     }
 
-    static public Color InterpolateRgb(Color c1, Color c2, double factor)
+    static public Color InterpolateRgb(Color c1, Color c2, double fraction)
     {
         return new Color(
-            InterpolateRgb(c1.R, c2.R, factor),
-            InterpolateRgb(c1.G, c2.G, factor),
-            InterpolateRgb(c1.B, c2.B, factor),
-            InterpolateRgb(c1.A, c2.A, factor)
+            InterpolateRgb(c1.R, c2.R, fraction),
+            InterpolateRgb(c1.G, c2.G, fraction),
+            InterpolateRgb(c1.B, c2.B, fraction),
+            InterpolateRgb(c1.A, c2.A, fraction)
             );
     }
 
@@ -335,21 +446,6 @@ public readonly struct Color
             array[i] = InterpolateRgb(c1, c2, stepFactor * i);
         }
         return array;
-    }
-
-    public uint PremultipliedARGB
-    {
-        get
-        {
-            byte premultipliedRed = (byte)((Red * Alpha) / 255);
-            byte premultipliedGreen = (byte)((Green * Alpha) / 255);
-            byte premultipliedBlue = (byte)((Blue * Alpha) / 255);
-            return
-                ((uint)Alpha << 24) |
-                ((uint)premultipliedRed << 16) |
-                ((uint)premultipliedGreen << 8) |
-                ((uint)premultipliedBlue << 0);
-        }
     }
 
     public static Color RandomHue()

@@ -5,23 +5,23 @@ internal class Generate
     [Test]
     public void Generate_Website()
     {
-        string json = GenerateJsonFile();
-        JsonCookbookInfo cb = new(json);
+        // generate a JSON file containing all cookbook info built using reflection.
+        string json = JsonFile.Generate();
 
+        // Save the json file to disk so it can be used by the demo application to load source code
+        string jsonFile = Path.Combine(Paths.OutputFolder, "recipes.json");
+        File.WriteAllText(jsonFile, json);
+
+        // Use contents of the JSON file to learn about all recipes and build the whole website
+        JsonCookbookInfo cb = new(json);
         GenerateHomePage(cb);
         GenerateCategoryPages(cb);
         GenerateRecipePages(cb);
         GenerateSearchPage();
+        GeneratePalettesPage();
+        GenerateColormapsPage();
 
         Console.WriteLine(Paths.OutputFolder);
-    }
-
-    private static string GenerateJsonFile()
-    {
-        string json = JsonFile.Generate();
-        string jsonFile = Path.Combine(Paths.OutputFolder, "recipes.json");
-        File.WriteAllText(jsonFile, json);
-        return json;
     }
 
     private static void GenerateHomePage(JsonCookbookInfo cb)
@@ -50,6 +50,16 @@ internal class Generate
 
     private static void GenerateSearchPage()
     {
-        new SearchPage().Generate(Paths.OutputFolder);
+        SearchPage.Generate(Paths.OutputFolder);
+    }
+
+    private static void GeneratePalettesPage()
+    {
+        PalettesPage.Generate(Paths.OutputFolder);
+    }
+
+    private static void GenerateColormapsPage()
+    {
+        ColormapsPage.Generate(Paths.OutputFolder);
     }
 }
