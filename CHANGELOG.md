@@ -2,6 +2,14 @@
 _Not yet on NuGet..._
 * Rendering: Prevent inversion of data area for extremely small plots (#3607)
 * Generate: Created `AddSin()` and `AddSinInPlace()` methods to facilitate test data generation (#3682)
+* FormsPlot: Improved the Visual Studio design time experience for users working on .NET Framework projects (#4425, #4362) @CoderPM2011
+* CoordinateRange: Improve equality checking for infinite spans with reversed limits (#4441, #4436) @sunefred
+* SVG: Significantly reduced the size of exported XML by preventing duplicate renders (#4441, #4436) @sunefred
+* LineStyle: Added a `HandDrawn` flag with customizable `HandDrawnJitter` and `HandDrawnSegmentLength` to create XKCD-style plots (#4435, #3239) @sdpenner
+* SignalConst: Exposed `Data` so users may access offset configuration settings (#4440, #4253) @matej-mnoucek
+* VectorField: Added `MaximumArrowLength` property to allow arrow lengths to be customized (#3763) @hnMel
+* Signal: Reduced render artifacts for high density overlapping data by reducing pixel overlap (#4050, #3665) @StendProg
+* Label: Added border radius properties to customize corner curvature of labels and plottables with label styles (#4099)
 
 ## ScottPlot 5.0.43
 _Published on [NuGet](https://www.nuget.org/profiles/ScottPlot) on 2024-11-03_
