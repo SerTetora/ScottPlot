@@ -46,8 +46,8 @@
 
     <!-- Package dependencies -->
 	<ItemGroup Condition="'$(TargetFramework)' == 'net462'">
-		<PackageReference Include="OpenTK" Version="3.3.1" NoWarn="NU1701" />
-		<PackageReference Include="OpenTK.GLWpfControl" Version="3.3.0" NoWarn="NU1701" />
+		<PackageReference Include="OpenTK" Version="4.3.0" NoWarn="NU1701" />
+		<PackageReference Include="OpenTK.GLWpfControl" Version="4.2.3" NoWarn="NU1701" />
 	</ItemGroup>
 	<ItemGroup Condition="'$(TargetFramework)' != 'net462'">
 		<PackageReference Include="OpenTK" Version="4.3.0" NoWarn="NU1701" />
@@ -58,7 +58,7 @@
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
-        <PackageReference Include="SkiaSharp.Views.WPF" Version="2.88.8" />
+        <PackageReference Include="SkiaSharp.Views.WPF" Version="2.88.9" />
         <ProjectReference Include="..\..\ScottPlot5\ScottPlot.csproj" />
     </ItemGroup>
 
