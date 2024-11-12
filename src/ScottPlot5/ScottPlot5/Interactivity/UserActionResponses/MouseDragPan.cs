@@ -7,7 +7,7 @@ public class MouseDragPan(MouseButton button) : IUserActionResponse
     /// </summary>
     public MouseButton MouseButton { get; } = button;
 
-    private Pixel MouseDownPixel;
+    private Pixel MouseDownPixel = Pixel.NaN;
 
     private MultiAxisLimits? RememberedLimits = null;
 
@@ -30,6 +30,12 @@ public class MouseDragPan(MouseButton button) : IUserActionResponse
     /// Horizontal panning is disabled when this is set
     /// </summary>
     public bool LockX { get; set; } = false;
+
+    public void ResetState(Plot plot)
+    {
+        RememberedLimits = null;
+        MouseDownPixel = Pixel.NaN;
+    }
 
     public ResponseInfo Execute(Plot plot, IUserAction userInput, KeyboardState keys)
     {

@@ -1,5 +1,12 @@
-## ScottPlot 5.0.44
+## ScottPlot 5.0.45
 _Not yet on NuGet..._
+* Candlestick: Improved performance for plots with large numbers of candles less than one pixel wide (#4483) @quantfreedom @VladislavPustovarov
+* Blazor: Added UI event handlers with names consistent with those of other controls (#4480) @Saklut
+* SignalConst: Improve automatic axis limit detection when X and Y data offsets are used (#4485) @matej-mnoucek
+* Controls: Improve interactivity behavior by resetting drag events when interactivity is disabled (#4481) @hljlishen
+
+## ScottPlot 5.0.44
+_Published on [NuGet](https://www.nuget.org/profiles/ScottPlot) on 2024-11-09_
 * Rendering: Prevent inversion of data area for extremely small plots (#3607)
 * Generate: Created `AddSin()` and `AddSinInPlace()` methods to facilitate test data generation (#3682)
 * FormsPlot: Improved the Visual Studio design time experience for users working on .NET Framework projects (#4425, #4362) @CoderPM2011
@@ -10,6 +17,28 @@ _Not yet on NuGet..._
 * VectorField: Added `MaximumArrowLength` property to allow arrow lengths to be customized (#3763) @hnMel
 * Signal: Reduced render artifacts for high density overlapping data by reducing pixel overlap (#4050, #3665) @StendProg
 * Label: Added border radius properties to customize corner curvature of labels and plottables with label styles (#4099)
+* Controls: Added `LostFocusAction` to abort mouse drags if they are interrupted by Alt+Tab or other events that lose window focus (#4103) @Max-i-m
+* Polygon: Improved performance and reduced anti-alias artifacts by preventing multiple overlapping drawings of identical lines (#4141) @HandsomeGoldenKnight
+* Title: Added `FullFigureCenter` flag to allow titles to be centered in the figure instead of over the data area (#4455, #364) @jaguarxii
+* OHLC: Added check in initializer to force valid high/low range state (#4454) @CBrauer
+* WpfPlot: Re-implemented `GetPlotPixelPosition()` and `GetCurrentPlotPixelPosition()` (#4214, #3622) @wellsw @KroMignon
+* DataLogger: Narrowed the underlying data type from `IList<Coordinates>` to `List<Coordinates>` to allow `RemoveRange()` as seen in the cookbook (#4460) @Fruchtzwerg94
+* Maui: Improve visual appearance of plots during panning (#4416, #4417, #4447) @King-Taz @KosmosWerner
+* WinUI: Improved support for Windows platforms by upgrading to the latest SkiaSharp dependency and building for `windows10.0.19041` (#4258) @ArchieCoder @ProgrammerGuy76 @agneszitte @AzureGulf @Treppon
+* Callout: Improved automatic axis limit detection (#4358) @endeffects
+* Axes: Added `SquareUnits(false)` overload to allow restoring default axis scaling behavior (#4366) @cvdevol
+* Axis Lines: Add `Minimum` and `Maximum` properties to limit the size of the line along its axis (#4368) @nRoger-Env
+* Axes: Added `Plot.Axes.NumericTicksButton()` to revert changes made by `DateTimeTicksBottom()` (#4438) @Cassar17
+* Colormap: Added `GetImage()` to return a `ScottPlot.Image` of custom dimensions which may be returned as a byte array or saved to disk (#4371)
+* Tick Generator: Added `DateTimeManual` for placing ticks manually on `DateTime` axes without having to use `ToOADate()` (#4383)
+* Grid: Added `Color`, `LineWidth`, and `LinePattern` properties for quickly setting major line styles of primary X and Y axes grid lines (#4384)
+* DataLogger: Exposed `HasNewData` to allow signaling that new renders are required after manually editing logger data (#4470, #4460) @Fruchtzwerg94
+* Marker: Improved support for filled markers with opt-in outlines (#4387)
+* Generate: Added `RangeWithStep()` and `RangeWithCount()` as more explicit alternatives to the ambiguously named `Range()` method
+* Scatter: Filled areas previously only respected `OffsetX` but now respect `OffsetY` too (#4433)
+* Controls: Modified `MouseDragZoom` to expose sensitivity properties to improve click-drag experiments for different platforms (#4443, #4416) @King-Taz @KosmosWerner
+* Controls: Improved mouse interactivity behavior for plots with inverted axes (#4471, #4110) @wi-fr
+* Population: Use deterministic randomness for horizontal spread of makers to support pixel perfect reproducibility (#4477)
 
 ## ScottPlot 5.0.43
 _Published on [NuGet](https://www.nuget.org/profiles/ScottPlot) on 2024-11-03_
@@ -19,7 +48,7 @@ _Published on [NuGet](https://www.nuget.org/profiles/ScottPlot) on 2024-11-03_
 * Maui: Improved cursor-driven pan and zoom on Desktop platform targets (#4417, #4416) @KosmosWerner @King-Taz
 * Candlestick Plot: Improved visibility of candles with zero price movement (#3337) @Lyakabynka @bukowa
 * Ticks: Added an experimental `FinancialTickGenerator` for generating DateTime ticks from unevenly-spaced time data (#4385)
-* Financial Charting: Added experimental `FinancialTimeAxis` plottable as an alternative to using custom axes or tick generators (#4385) @quantfreedom @vladislavpweetsoft
+* Financial Charting: Added experimental `FinancialTimeAxis` plottable as an alternative to using custom axes or tick generators (#4385) @quantfreedom @VladislavPustovarov
 * Triangular Axis: Users may now `Add.TriangularAxis()` and use its methods to get Cartesian coordinates from points in triangular space (#4421, #4413, #4424) @manaruto
 * Bar: Exposed `Rect`, `ErrorLines`, and `AxisLimits` properties (#4423) @tiger2014
 * Axes: `SquareUnits()` now uses `SquareZoomOut` for console apps and `SquarePreserveX` for interactive apps (#4422) @King-Taz @KosmosWerner

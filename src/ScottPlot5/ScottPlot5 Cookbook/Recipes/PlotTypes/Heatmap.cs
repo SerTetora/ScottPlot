@@ -120,6 +120,7 @@ public class Heatmap : ICategory
 
             var hm = myPlot.Add.Heatmap(data);
             var cb = myPlot.Add.ColorBar(hm);
+            cb.MinimumSize = 80; // reserve space for the colorbar and tick labels
 
             // create a static function containing the string formatting logic
             static string CustomFormatter(double position)
@@ -373,6 +374,40 @@ public class Heatmap : ICategory
 
             // force the colormap to span a manual range of values
             hm.ManualRange = new(50, 150);
+        }
+    }
+
+    public class HeatmapCellLabels : RecipeBase
+    {
+        public override string Name => "Heatmap Cell Labels";
+        public override string Description => "Text may be placed over cells " +
+            "to provide cell labels. In interactive applications MouseMove events " +
+            "may be used to remove old labels and only display a label over the cell " +
+            "beneath the mouse. See the ScottPlot Demo page for more information and code samples.";
+
+        [Test]
+        public override void Execute()
+        {
+            double[,] data = {
+                { 1, 2, 3 },
+                { 4, 5, 6 },
+                { 7, 8, 9 },
+            };
+
+            var hm = myPlot.Add.Heatmap(data);
+
+            for (int y = 0; y < data.GetLength(0); y++)
+            {
+                for (int x = 0; x < data.GetLength(1); x++)
+                {
+                    Coordinates coordinates = new(x, y);
+                    string cellLabel = data[y, x].ToString("0.0");
+                    var text = myPlot.Add.Text(cellLabel, coordinates);
+                    text.Alignment = Alignment.MiddleCenter;
+                    text.LabelFontSize = 30;
+                    text.LabelFontColor = Colors.White;
+                }
+            }
         }
     }
 }

@@ -1,4 +1,7 @@
-﻿namespace ScottPlot.Interactivity;
+﻿using ScottPlot.Interactivity.UserActionResponses;
+using System.Reflection.Emit;
+
+namespace ScottPlot.Interactivity;
 
 #pragma warning disable CS0618 // disable obsolete Interaction warning
 
@@ -31,6 +34,10 @@ public class UserInputProcessor
             if (value)
             {
                 PlotControl?.Interaction.Disable();
+            }
+            else
+            {
+                ProcessLostFocus();
             }
         }
     }
@@ -175,6 +182,31 @@ public class UserInputProcessor
 
         if (refreshNeeded)
             PlotControl.Refresh();
+    }
+
+    public Action<IPlotControl> LostFocusAction = (IPlotControl plotControl) =>
+    {
+        ResetState(plotControl);
+        plotControl.Refresh();
+    };
+
+    /// <summary>
+    /// Reset state of all user action responses to do things like 
+    /// abort mouse-down-drag actions or key press-and-hold actions
+    /// </summary>
+    public static void ResetState(IPlotControl plotControl)
+    {
+        foreach (var response in plotControl.UserInputProcessor.UserActionResponses)
+        {
+            response.ResetState(plotControl.Plot);
+        }
+
+        plotControl.UserInputProcessor.KeyState.Reset();
+    }
+
+    public void ProcessLostFocus()
+    {
+        LostFocusAction.Invoke(PlotControl);
     }
 
     private void UpdateKeyboardState(IUserAction userAction)

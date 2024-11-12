@@ -255,10 +255,45 @@ public class AxisManager
         // setup the grid to use the new bottom axis
         Plot.Axes.DefaultGrid.XAxis = dateAxis;
 
+        // update plottables to use the new axis
+        foreach (IPlottable plottable in Plot.GetPlottables())
+        {
+            if (plottable.Axes.XAxis is not null)
+                plottable.Axes.XAxis = dateAxis;
+        }
+
         // autoscale the new axis to fit data already on the plot
         AutoScale();
 
         return dateAxis;
+    }
+
+    /// <summary>
+    /// Remove all bottom axes, create a numeric bottom axis, add it to the plot, and return it.
+    /// </summary>
+    public BottomAxis NumericTicksBottom()
+    {
+        // remove all bottom axes
+        Plot.Axes.Remove(Edge.Bottom);
+
+        // create a new bottom axis and add it
+        BottomAxis numericAxis = new();
+        Plot.Axes.XAxes.Add(numericAxis);
+
+        // setup the grid to use the new bottom axis
+        Plot.Axes.DefaultGrid.XAxis = numericAxis;
+
+        // update plottables to use the new axis
+        foreach (IPlottable plottable in Plot.GetPlottables())
+        {
+            if (plottable.Axes.XAxis is not null)
+                plottable.Axes.XAxis = numericAxis;
+        }
+
+        // autoscale the new axis to fit data already on the plot
+        AutoScale();
+
+        return numericAxis;
     }
 
     public void AddYAxis(IYAxis axis)
@@ -935,6 +970,7 @@ public class AxisManager
         AutoScaler = new AutoScalers.FractionalAutoScaler(left, right, bottom, top);
         AutoScale();
     }
+
     /// <summary>
     /// Force pixels to have a 1:1 scale ratio.
     /// This allows circles to always appear as circles and not stretched ellipses.
@@ -946,6 +982,27 @@ public class AxisManager
             : new AxisRules.SquarePreserveX(Bottom, Left); // best for interactive apps
 
         Rules.Add(rule);
+    }
+
+    /// <summary>
+    /// If true, force pixels to have a 1:1 scale ratio.
+    /// This allows circles to always appear as circles and not stretched ellipses.
+    /// If false, disable axis rules related to square units and restore default behavior.
+    /// </summary>
+    public void SquareUnits(bool enable)
+    {
+        if (enable)
+        {
+            SquareUnits();
+            return;
+        }
+
+        List<IAxisRule> rulesToRemove = [];
+        rulesToRemove.AddRange(Rules.OfType<AxisRules.SquareZoomOut>());
+        rulesToRemove.AddRange(Rules.OfType<AxisRules.SquarePreserveX>());
+        rulesToRemove.AddRange(Rules.OfType<AxisRules.SquarePreserveY>());
+        rulesToRemove.ForEach(x => Rules.Remove(x));
+        AutoScale();
     }
 
     /// <summary>

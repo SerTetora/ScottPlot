@@ -1,16 +1,11 @@
 ﻿namespace ScottPlot.DataSources;
 
-public class DataLoggerSource
+public class DataLoggerSource(List<Coordinates> coordinates)
 {
     private volatile bool hasNewData;
     private volatile bool wasRendered;
 
-    public DataLoggerSource(IList<Coordinates> coordinates)
-    {
-        Coordinates = coordinates;
-    }
-
-    public IList<Coordinates> Coordinates { get; }
+    public List<Coordinates> Coordinates { get; } = coordinates;
     public double XOffset { get; set; } = 0;
     public double YOffset { get; set; } = 0;
     public double YScale { get; set; } = 1;
@@ -20,7 +15,7 @@ public class DataLoggerSource
     public bool HasNewData
     {
         get => hasNewData;
-        private set => hasNewData = value;
+        set => hasNewData = value;
     }
 
     public bool WasRendered
