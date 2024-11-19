@@ -352,6 +352,18 @@ public class PlottableAdder(Plot plot)
         return streamer;
     }
 
+    public DataStreamerXY DataStreamerXY(int capacity)
+    {
+        DataStreamerXY streamer = new(capacity)
+        {
+            Color = GetNextColor(),
+        };
+
+        Plot.PlottableList.Add(streamer);
+
+        return streamer;
+    }
+
     public Ellipse Ellipse(Coordinates center, double radiusX, double radiusY, float rotation = 0)
     {
         Color color = GetNextColor();
@@ -1076,17 +1088,11 @@ public class PlottableAdder(Plot plot)
         return Signal(source, color);
     }
 
-    public SignalConst<T> SignalConst<T>(T[] ys, double period = 1, Color? color = null)
+    public Signal SignalConst<T>(T[] ys, double period = 1, Color? color = null)
         where T : struct, IComparable
     {
-        SignalConst<T> sig = new(ys, period)
-        {
-            Color = color ?? GetNextColor()
-        };
-
-        Plot.PlottableList.Add(sig);
-
-        return sig;
+        SignalConstSource<T> source = new(ys, period);
+        return Signal(source, color);
     }
 
     public SignalXY SignalXY(ISignalXYSource source, Color? color = null)

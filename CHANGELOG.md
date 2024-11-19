@@ -1,9 +1,26 @@
-## ScottPlot 5.0.45
+## ScottPlot 5.0.47
 _Not yet on NuGet..._
+
+## ScottPlot 5.0.46
+_Published on [NuGet](https://www.nuget.org/profiles/ScottPlot) on 2024-11-17_
+* Axes: Added support for displaying bitmaps as axis labels allowing rich text to be rendered using a third party package and displayed in any plot (#4503, #3222, #2905) @Liwr9537 @CBrauer @DaveMartel
+* DataStreamerXY: A new type of plottable for displaying streaming Y with unevenly spaced, user-defined X values (#4507, #4460, #4518) @dlampa
+* DataLogger: Added `InvertX` and `InvertY` flags to control automatic axis limit management behavior (#4513) @Jofstera
+* Controls: Updated mouse wheel scroll fractions so zoom-out wheel events more accurately reverse zoom-in wheel events (#4516) @quantfreedom
+* Candlestick: Updated `FallingColor` property to change both the fill and line colors with one assignment (#4521) @czastack
+* Interactivity: Mouse click times in double-click events no longer resets after losing focus, improving double-click behavior in WPF controls (#4524) @onur-akaydin
+* OpenGL: Updated GLSL version number formatting to improve rendering on some platforms (#4519) @onur-akaydin @StendProg
+* Legend: Gave `LegendItem` a `Plottable` property to enable creating interactive legends which control plottable properties (#4523, #3842, #4147) @BambOoxX
+
+## ScottPlot 5.0.45
+_Published on [NuGet](https://www.nuget.org/profiles/ScottPlot) on 2024-11-12_
 * Candlestick: Improved performance for plots with large numbers of candles less than one pixel wide (#4483) @quantfreedom @VladislavPustovarov
 * Blazor: Added UI event handlers with names consistent with those of other controls (#4480) @Saklut
 * SignalConst: Improve automatic axis limit detection when X and Y data offsets are used (#4485) @matej-mnoucek
 * Controls: Improve interactivity behavior by resetting drag events when interactivity is disabled (#4481) @hljlishen
+* SignalConst: Deprecated the `SignalConst` type in favor of a `Signal` with a `SignalConstSource` data source (#4492)
+* Signal: Refactored multiple signal plot and data source types for improved performance, increased customization, and better consistency (#4492) @StendProg
+* Text: Added a static `LabelStyle.RTLSupport` flag to enable support for right-to-left (RTL) languages (#4500, #4306) @StendProg @moranmono
 
 ## ScottPlot 5.0.44
 _Published on [NuGet](https://www.nuget.org/profiles/ScottPlot) on 2024-11-09_
