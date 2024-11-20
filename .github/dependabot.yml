@@ -8,4 +8,8 @@ updates:
     directories: ["src/*"]
     schedule:
       interval: "weekly"
+  - package-ecosystem: "dotnet-sdk" 
+    directories: ["src/*"]
+    schedule:
+      interval: "weekly"
     open-pull-requests-limit: 30
