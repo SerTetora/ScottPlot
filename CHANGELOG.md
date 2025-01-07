@@ -1,5 +1,12 @@
-## ScottPlot 5.0.48
+## ScottPlot 5.0.51
 _Not yet on NuGet..._
+
+## ScottPlot 5.0.50
+_Published on [NuGet](https://www.nuget.org/profiles/ScottPlot) on 2025-01-06_
+* WPF: Updated the WPF control to pass render requests though the new Multiplot system (#4666, #4667) @zygfrydw @VladislavPustovarov
+
+## ScottPlot 5.0.48
+_Published on [NuGet](https://www.nuget.org/profiles/ScottPlot) on 2025-01-05_
 * Multiplot: Extend `Multiplot` to support rending onto an existing surface (#4628, #4600)
 * User Controls: Add `Multiplot` to `IPlotControl` (#4628, #4600)
 * User Controls: Remove deprecated `Interaction` system (#4630, #4600)
@@ -7,6 +14,18 @@ _Not yet on NuGet..._
 * Controls: Update all `UserInputProcessor` code to support `Multiplot` interactions (#4632, #4600)
 * Multiplot: Add advanced subplot positioning features (#4633, #4600)
 * Multiplot: Add shared axis helper methods to facilitate syncing axis limits across subplots (#4635, #4600)
+* Generate:  Fixed causing `AddNoiseInPlace()` to offset the mean of the underlying signal (#4564) @nightroman
+* Text: Fixed `DragTo()` to use the correct axis dimension (#4587) @claire0821
+* Rendering: Improved handling of the `RenderPack` inside the render loop to avoid Skia exceptions (#4592) @vadimart92
+* Axes: Improved support for `CoordinateRect` hit detection on plots with inverted axes (#4596) @SprinterDave
+* Axes: Improved axis rule behavior on plots using inverted axes (#3597, #4609) @CoderPM2011
+* Smith Chart: New plot type for displaying impedance of signals as resistance vs. reactance on a circular axis system (#4634, #4578, #41) @CoderPM2011 @louis1901 @Padanian
+* Rendering: Improve support for platforms where BGRA is not the default color model (#4648, #4647) @bclehmann @ssharks
+* Legend: Made `GetItems()` virtual to support custom ordering logic and made `Plot.Legend` settable (#4571) @onur-akaydin
+* Controls: Improved middle-click-drag zoom rectangle support for plots using inverted axis limits (#4573) @xichaoqiang
+* Ticks: Improved tick placement consistency for financial plots with DateTime axes (#4591) @VladislavPustovarov
+* Line: Added `LineOnTop` and `MarkersOnTop` flags to control which components appear in front (#4610) @nullsoftware @quantfreedom
+* Axes: Added a helper method allowing `Plot.Axes.Left.RemoveTickGenerator()` to quickly disable left axis tick generation (#2875, #4613, #4608, #4613)
 
 ## ScottPlot 5.0.47
 _Published on [NuGet](https://www.nuget.org/profiles/ScottPlot) on 2024-11-24_
