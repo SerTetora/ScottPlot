@@ -1,5 +1,11 @@
-## ScottPlot 5.0.52
+## ScottPlot 5.0.53
 _Not yet on NuGet..._
+* Axis Rules: Improved support for inner and boundaries on plots with inverted axis limits (#4686, #4609) @kebox7
+
+## ScottPlot 5.0.52
+_Published on [NuGet](https://www.nuget.org/profiles/ScottPlot) on 2025-01-08_
+* Controls: Fix issue preventing the context menu from appearing after it was used to open a new window (#4529, #4671) @wi-fr @david3951445
+* Eto: Improved implementation of the new multi-plot rendering system (#4675) @qaz7349134142024
 
 ## ScottPlot 5.0.51
 _Published on [NuGet](https://www.nuget.org/profiles/ScottPlot) on 2025-01-07_
