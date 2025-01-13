@@ -1,6 +1,13 @@
-## ScottPlot 5.0.53
+## ScottPlot 5.0.54
 _Not yet on NuGet..._
+
+## ScottPlot 5.0.53
+_Published on [NuGet](https://www.nuget.org/profiles/ScottPlot) on 2025-01-12_
 * Axis Rules: Improved support for inner and boundaries on plots with inverted axis limits (#4686, #4609) @kebox7
+* OpenGL: Improved behavior for applications which have multiple OpenGL instances (#4693) @onur-akaydin
+* Multiplot: Improved interactive behavior in .NET Maui, Blazor, and WinUI controls (#4691) @King-Taz
+* IPlotControl: Refactor to support `IMultiplot` allowing users to inject their own multi-plot logic (#4687)
+* Cookbook: Added a colors page demonstrating all colors included with ScottPlot (#4681) @quantfreedom
 
 ## ScottPlot 5.0.52
 _Published on [NuGet](https://www.nuget.org/profiles/ScottPlot) on 2025-01-08_
@@ -1453,7 +1460,7 @@ _Published on [NuGet](https://www.nuget.org/profiles/ScottPlot) on 2021-08-25_
 * Signal Plot: Added `StepDisplay` option to render signal plots as step plots when zoomed in (#1092, #1128) @EFeru
 * Testing: Improved error reporting on failed XML documentation tests (#1127) @StendProg
 * Histogram: Marked `ScottPlot.Statistics.Histogram` obsolete in favor of static methods in `ScottPlot.Statistics.Common` designed to create histograms and probability function curves (#1051, #1166). See cookbook for usage examples. @breakwinz and @bclehmann
-* WpfPlot: Improve memory management for dynamically created and destroyed WpfPlot controls by properly unloading the dispatcher timer (#1115, #1117) @RamsayGit, @bclehmann, @StendProg, and @Orace
+* WpfPlot: Improve memory management for dynamically created and destroyed WpfPlot controls by properly unloading the dispatcher timer (#1115, #1117) @ramsayamarin, @bclehmann, @StendProg, and @Orace
 * Mouse Processing: Improved bug that affected fast drag-dropping of draggable objects (#1076)
 * Rendering: Fixed clipping bug that caused some plot types to be rendered above data area frames (#1084)
 * Plot: Added `Width` and `Height` properties
