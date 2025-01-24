@@ -51,7 +51,7 @@
         <PackageReference Include="SkiaSharp" Version="2.88.9" />
         <PackageReference Include="SkiaSharp.HarfBuzz" Version="2.88.9" />
         <PackageReference Include="HarfBuzzSharp.NativeAssets.Linux" Version="7.3.0.3" />
-        <PackageReference Include="SkiaSharp.NativeAssets.Linux.NoDependencies" Version="2.88.9" />
+        <PackageReference Include="SkiaSharp.NativeAssets.Linux.NoDependencies" Version="3.116.1" />
     </ItemGroup>
 
     <!-- Packages allowing modern C# language features to be used in .NET Framework project -->
