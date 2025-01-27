@@ -111,7 +111,6 @@ public class RenderManager(Plot plot)
             RenderOnce(canvas, rect);
             if (!AxisLimitsChangedSinceLastRender())
                 return;
-            //Debug.WriteLine($"Re-Render required! #{i}");
         }
     }
 
@@ -174,9 +173,12 @@ public class RenderManager(Plot plot)
             if (double.IsNaN(axis.Range.Span))
                 continue;
 
-            CoordinateRange rangeNow = axis.Range.ToCoordinateRange;
-            CoordinateRange rangeBefore = LastRender.AxisLimitsByAxis[axis];
-            bool axisLimitsChanged = rangeNow != rangeBefore;
+            double newMin = axis.Range.Min;
+            double newMax = axis.Range.Max;
+            double oldMin = LastRender.AxisLimitsByAxis[axis].Min;
+            double oldMax = LastRender.AxisLimitsByAxis[axis].Max;
+
+            bool axisLimitsChanged = (oldMin != newMin) || (oldMax != newMax);
             if (axisLimitsChanged)
                 return true;
         }
@@ -184,4 +186,8 @@ public class RenderManager(Plot plot)
         return false;
     }
 
+    public void ForgetLastRender()
+    {
+        LastRender = new();
+    }
 }
