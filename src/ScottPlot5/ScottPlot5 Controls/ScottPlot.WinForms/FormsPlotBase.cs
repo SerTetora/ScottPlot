@@ -1,4 +1,4 @@
-﻿using ScottPlot.Interactivity;
+using ScottPlot.Interactivity;
 using SkiaSharp;
 using System;
 using System.ComponentModel;
@@ -107,6 +107,7 @@ public abstract class FormsPlotBase : UserControl, IPlotControl
         if (disposeOldPlot)
             oldPlot?.Dispose();
         Plot.PlotControl = this;
+        UserInputProcessor.Reset();
         Multiplot.Reset(plot);
     }
 

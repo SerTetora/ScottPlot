@@ -1,6 +1,22 @@
 ## ScottPlot 5.0.55
 _Not yet on NuGet..._
 * WPF: Added autoscale option to the default right-click context menu (#4701) @hsfetterman
+* Interactivity: Make all user action responses public (#4743) @manaruto @bwedding
+* Shapes: Improved display of newly added Eclipse and Arc shapes (#4744, #4739) @CoderPM2011
+* SignalXY: Improve support for generic X and Y collections (#4753, #4746) @JoeStoneAT @bclehmann
+* Axis Rules: Updated minimum and maximum span rules to improve support for inverted axes (#4755, #4735) @manaruto
+* Avalonia: Improved support for transparency at the window level (#4759, #3444, #4732) @bclehmann
+* CoordinateRange: Improve NaN support for `Extrema()` method (#4770, #4665) @bwedding @uperp
+* Rendering: Improved performance by simplifying axis limit change detection to reduce duplicate renders (#4790, #4783) @bclehmann @dtoppani-twist @chen1tian @ssharks
+* Rectangular Grid: Improve logic used to identify cells from coordinates, fixing issues associated with contour line plots (#4787, #4791) @StendProg @ScottSSapphire
+* Axes: Improve coordinate lookup logic for translating between triangular and Cartesian axes (#4797, #4798) @manaruto
+* SignalXY: Improve performance by reducing allocations and copying inside the render loop (#4794, #4753) @bclehmann
+* CoordinateRangeMutable: Improve comparison logic (#4796) @bclehmann
+* Multiplot: Improve interactivity following `Reset()` and restore cookbook behavior (#4793)
+* Population: Use stable random number generator for horizontal symbol offsets (#4616) @marklam
+* Colorbar: Improve support for transparent colormaps (#4685) @Roman-Rak
+* Marker: Setting `LineColor` now sets both line color and outline color to improve support for filled markers with outlines (#4715)
+* Axes: Exposed `GetPanels()` and added `GetXAxes()` and `GetYAxes()` to facilitate advanced customization (#4717) @hsfetterman
 
 ## ScottPlot 5.0.54
 _Published on [NuGet](https://www.nuget.org/profiles/ScottPlot) on 2025-01-26_

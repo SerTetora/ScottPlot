@@ -1,4 +1,4 @@
-﻿namespace ScottPlot;
+namespace ScottPlot;
 
 public class MultiplotLayoutSnapshot
 {
@@ -29,6 +29,11 @@ public class MultiplotLayoutSnapshot
     public void Forget(Plot plot)
     {
         Shapshots.Remove(plot);
+    }
+
+    public void Reset()
+    {
+        Shapshots.Clear();
     }
 
     /// <summary>
