@@ -127,6 +127,8 @@ jobs:
   bump:
     name: Bump Version
     needs: [deploy]
+    permissions:
+      contents: write
     uses: ./.github/workflows/bump-version.yaml
     secrets:
       GH_TOKEN: ${{ secrets.GH_TOKEN }}
