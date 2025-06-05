@@ -11,6 +11,8 @@ jobs:
   sp4-autoformat:
     name: Fix
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - name: Checkout as Contributor
         uses: actions/checkout@v4
