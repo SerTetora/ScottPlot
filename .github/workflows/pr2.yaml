@@ -16,6 +16,8 @@ jobs:
   autoformat:
     name: "Autoformat"
     uses: ./.github/workflows/task-autoformat-check.yaml
+    permissions:
+      contents: read
   full:
     name: "Full Build"
     uses: ./.github/workflows/task-full.yaml
