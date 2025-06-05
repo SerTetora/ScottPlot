@@ -49,5 +49,7 @@ jobs:
     name: "Publish"
     needs: [full]
     uses: ./.github/workflows/task-code-metrics.yaml
+    permissions:
+      contents: read
     secrets:
       private-ssh-key: ${{ secrets.PRIVATE_SSH_KEY }}
